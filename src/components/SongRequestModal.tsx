@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { X, Music, Send, CheckCircle2, AlertCircle, Sparkles } from 'lucide-react';
+import { X, Music, Send, CheckCircle2, AlertCircle, MessageCircle, Sparkles } from 'lucide-react';
 import { submitSongRequest } from '../services/api';
 
 interface SongRequestModalProps {
@@ -38,8 +38,11 @@ export const SongRequestModal: React.FC<SongRequestModalProps> = ({
     { artist: 'Franky Sihombing', title: 'Saat Indah' },
   ];
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const whatsappNumber = localStorage.getItem('radio_whatsapp') || '081234567890';
+  const cleanPhone = whatsappNumber.replace(/[^0-9]/g, '').replace(/^0/, '62');
+
+  const handleSubmit = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
     if (!artist.trim() || !title.trim()) {
       setStatusMessage({ type: 'error', text: 'Nama artis dan judul lagu wajib diisi.' });
       return;
@@ -58,7 +61,7 @@ export const SongRequestModal: React.FC<SongRequestModalProps> = ({
 
       setStatusMessage({
         type: 'success',
-        text: response.message || 'Request lagu berhasil dikirim ke antrean RadioBOSS!',
+        text: response.message || 'Request lagu berhasil dikirim ke antrean siaran!',
       });
 
       // Clear fields except name
@@ -81,6 +84,41 @@ export const SongRequestModal: React.FC<SongRequestModalProps> = ({
     }
   };
 
+  const handleSendToWhatsApp = () => {
+    if (!artist.trim() || !title.trim()) {
+      setStatusMessage({ type: 'error', text: 'Nama artis dan judul lagu wajib diisi untuk kirim via WhatsApp.' });
+      return;
+    }
+
+    // Submit locally first so it shows up in chat & history
+    submitSongRequest({
+      requesterName: requesterName.trim() || 'Pendengar Setia',
+      artist: artist.trim(),
+      title: title.trim(),
+      message: message.trim(),
+    }).catch(() => {});
+
+    const name = requesterName.trim() || 'Pendengar';
+    const waText = encodeURIComponent(
+      `Syalom Radio Eklesia,\n\nSaya ${name} ingin request lagu pujian:\n🎵 Artis: ${artist.trim()}\n🎶 Judul: ${title.trim()}` +
+      (message.trim() ? `\n\n💬 Pesan / Salam: "${message.trim()}"` : '') +
+      `\n\nTerima kasih, Tuhan memberkati!`
+    );
+
+    const waUrl = `https://wa.me/${cleanPhone}?text=${waText}`;
+    window.open(waUrl, '_blank');
+
+    setStatusMessage({
+      type: 'success',
+      text: 'Request lagu diteruskan ke WhatsApp Operator!',
+    });
+
+    setTimeout(() => {
+      onClose();
+      setStatusMessage(null);
+    }, 2000);
+  };
+
   const handlePickSuggestion = (sugArtist: string, sugTitle: string) => {
     setArtist(sugArtist);
     setTitle(sugTitle);
@@ -88,11 +126,11 @@ export const SongRequestModal: React.FC<SongRequestModalProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-neutral-950/80 backdrop-blur-md">
-      <div className="relative w-full max-w-lg overflow-hidden rounded-2xl border border-neutral-800 bg-neutral-900 p-6 shadow-2xl">
+      <div className="relative w-full max-w-lg overflow-hidden rounded-3xl border border-neutral-800 bg-neutral-900 p-6 shadow-2xl">
         {/* Close button */}
         <button
           onClick={onClose}
-          className="absolute right-4 top-4 rounded-lg p-1.5 text-neutral-400 hover:text-white hover:bg-neutral-800 transition-colors cursor-pointer"
+          className="absolute right-4 top-4 rounded-xl p-1.5 text-neutral-400 hover:text-white hover:bg-neutral-800 transition-colors cursor-pointer"
           aria-label="Tutup modal"
         >
           <X className="h-5 w-5" />
@@ -100,7 +138,7 @@ export const SongRequestModal: React.FC<SongRequestModalProps> = ({
 
         {/* Modal Header */}
         <div className="flex items-center gap-3 border-b border-neutral-800 pb-4">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-amber-500/15 border border-amber-500/30 text-amber-400">
+          <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-amber-500/15 border border-amber-500/30 text-amber-400">
             <Music className="h-5 w-5" />
           </div>
           <div>
@@ -108,7 +146,7 @@ export const SongRequestModal: React.FC<SongRequestModalProps> = ({
               Request Lagu ke Studio Radio
             </h2>
             <p className="text-xs text-neutral-400">
-              Lagu akan diteruskan secara otomatis ke antrean pemutaran RadioBOSS
+              Lagu akan diteruskan ke antrean siaran &amp; operator RadioBOSS
             </p>
           </div>
         </div>
@@ -123,8 +161,8 @@ export const SongRequestModal: React.FC<SongRequestModalProps> = ({
               type="text"
               value={requesterName}
               onChange={(e) => setRequesterName(e.target.value)}
-              placeholder="Contoh: Budi (Jakarta)"
-              className="w-full rounded-xl bg-neutral-950 border border-neutral-800 px-3.5 py-2 text-white placeholder-neutral-600 focus:border-amber-500 focus:outline-none"
+              placeholder="Contoh: Ibu Maria (Jakarta)"
+              className="w-full rounded-2xl bg-neutral-950 border border-neutral-800 px-3.5 py-2.5 text-white placeholder-neutral-600 focus:border-amber-500 focus:outline-none"
             />
           </div>
 
@@ -137,9 +175,9 @@ export const SongRequestModal: React.FC<SongRequestModalProps> = ({
                 type="text"
                 value={artist}
                 onChange={(e) => setArtist(e.target.value)}
-                placeholder="Contoh: Sheila on 7"
+                placeholder="Contoh: NDC Worship"
                 required
-                className="w-full rounded-xl bg-neutral-950 border border-neutral-800 px-3.5 py-2 text-white placeholder-neutral-600 focus:border-amber-500 focus:outline-none"
+                className="w-full rounded-2xl bg-neutral-950 border border-neutral-800 px-3.5 py-2.5 text-white placeholder-neutral-600 focus:border-amber-500 focus:outline-none"
               />
             </div>
 
@@ -151,23 +189,23 @@ export const SongRequestModal: React.FC<SongRequestModalProps> = ({
                 type="text"
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
-                placeholder="Contoh: Dan..."
+                placeholder="Contoh: Waktu Tuhan"
                 required
-                className="w-full rounded-xl bg-neutral-950 border border-neutral-800 px-3.5 py-2 text-white placeholder-neutral-600 focus:border-amber-500 focus:outline-none"
+                className="w-full rounded-2xl bg-neutral-950 border border-neutral-800 px-3.5 py-2.5 text-white placeholder-neutral-600 focus:border-amber-500 focus:outline-none"
               />
             </div>
           </div>
 
           <div>
             <label className="block font-medium text-neutral-300 mb-1">
-              Salam & Ucapan / Pesan Khusus (Opsional)
+              Salam &amp; Ucapan / Doa Sahabat (Opsional)
             </label>
             <textarea
               rows={2}
               value={message}
               onChange={(e) => setMessage(e.target.value)}
-              placeholder="Contoh: Titip salam buat sahabat di kantor, semoga harinya menyenangkan!"
-              className="w-full rounded-xl bg-neutral-950 border border-neutral-800 px-3.5 py-2 text-white placeholder-neutral-600 focus:border-amber-500 focus:outline-none resize-none"
+              placeholder="Contoh: Titip salam dan doa buat keluarga serta persekutuan doa..."
+              className="w-full rounded-2xl bg-neutral-950 border border-neutral-800 px-3.5 py-2.5 text-white placeholder-neutral-600 focus:border-amber-500 focus:outline-none resize-none"
             />
           </div>
 
@@ -182,7 +220,7 @@ export const SongRequestModal: React.FC<SongRequestModalProps> = ({
                   key={idx}
                   type="button"
                   onClick={() => handlePickSuggestion(sug.artist, sug.title)}
-                  className="rounded-lg bg-neutral-950 hover:bg-neutral-800 border border-neutral-800 px-2.5 py-1 text-[11px] text-neutral-300 hover:text-amber-400 transition-colors cursor-pointer"
+                  className="rounded-xl bg-neutral-950 hover:bg-neutral-800 border border-neutral-800 px-2.5 py-1 text-[11px] text-neutral-300 hover:text-amber-400 transition-colors cursor-pointer"
                 >
                   {sug.artist} - {sug.title}
                 </button>
@@ -192,7 +230,7 @@ export const SongRequestModal: React.FC<SongRequestModalProps> = ({
 
           {statusMessage && (
             <div
-              className={`rounded-xl border p-3 text-xs flex items-center gap-2 ${
+              className={`rounded-2xl border p-3 text-xs flex items-center gap-2 ${
                 statusMessage.type === 'success'
                   ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-300'
                   : 'bg-rose-500/10 border-rose-500/30 text-rose-300'
@@ -207,21 +245,24 @@ export const SongRequestModal: React.FC<SongRequestModalProps> = ({
             </div>
           )}
 
-          <div className="pt-2 flex items-center justify-end gap-3">
+          <div className="pt-2 flex flex-col sm:flex-row items-stretch sm:items-center justify-end gap-2.5">
             <button
               type="button"
-              onClick={onClose}
-              className="rounded-xl px-4 py-2 text-xs font-semibold text-neutral-400 hover:text-white transition-colors cursor-pointer"
+              onClick={handleSendToWhatsApp}
+              className="flex items-center justify-center gap-1.5 rounded-2xl bg-emerald-600 hover:bg-emerald-500 px-4 py-2.5 text-xs font-bold text-white transition-colors cursor-pointer shadow-md shadow-emerald-600/20"
+              title="Kirimkan langsung ke WhatsApp Operator"
             >
-              Batal
+              <MessageCircle className="h-4 w-4" />
+              <span>Kirim via WhatsApp ke Operator</span>
             </button>
+
             <button
               type="submit"
               disabled={isSubmitting}
-              className="flex items-center gap-2 rounded-xl bg-amber-500 hover:bg-amber-400 px-5 py-2.5 text-xs font-bold text-neutral-950 transition-colors cursor-pointer shadow-md shadow-amber-500/20 disabled:opacity-50"
+              className="flex items-center justify-center gap-2 rounded-2xl bg-amber-500 hover:bg-amber-400 px-5 py-2.5 text-xs font-bold text-neutral-950 transition-colors cursor-pointer shadow-md shadow-amber-500/20 disabled:opacity-50"
             >
               <Send className="h-3.5 w-3.5 fill-current" />
-              <span>{isSubmitting ? 'Mengirim ke Studio...' : 'Kirim Request'}</span>
+              <span>{isSubmitting ? 'Mengirim...' : 'Kirim ke Antrean'}</span>
             </button>
           </div>
         </form>

@@ -75,7 +75,7 @@ export const TopNavbar: React.FC<TopNavbarProps> = ({
                 : 'text-neutral-400 hover:text-white'
             }`}
           >
-            Integrasi RadioBOSS
+            Link Zeno FM
           </button>
         </nav>
 

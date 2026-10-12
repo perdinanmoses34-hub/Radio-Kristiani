@@ -113,6 +113,81 @@ const DEFAULT_SCHEDULE: RadioShow[] = [
   },
 ];
 
+// Helper to normalize any pasted Zeno FM URL into a playable stream URL and embed URL
+export function parseZenoInput(input: string): {
+  streamUrl: string;
+  embedUrl: string;
+  slug: string;
+  type: 'stream' | 'station' | 'embed' | 'key';
+} {
+  const clean = input.trim();
+  let slug = 'eklesia-radio';
+  let streamUrl = 'https://stream.zeno.fm/f3wvbbqmdg8uv';
+  let embedUrl = 'https://zeno.fm/player/eklesia-radio';
+  let type: 'stream' | 'station' | 'embed' | 'key' = 'stream';
+
+  if (!clean) {
+    return { streamUrl, embedUrl, slug, type };
+  }
+
+  // 1. Direct stream URL: https://stream.zeno.fm/xxxx
+  const streamMatch = clean.match(/stream\.zeno\.fm\/([a-zA-Z0-9_-]+)/i);
+  if (streamMatch && streamMatch[1]) {
+    const key = streamMatch[1];
+    slug = key;
+    streamUrl = `https://stream.zeno.fm/${key}`;
+    embedUrl = `https://zeno.fm/player/${key}`;
+    type = 'stream';
+    return { streamUrl, embedUrl, slug, type };
+  }
+
+  // 2. Station page URL: https://zeno.fm/radio/station-slug
+  const radioMatch = clean.match(/zeno\.fm\/radio\/([a-zA-Z0-9_-]+)/i);
+  if (radioMatch && radioMatch[1]) {
+    slug = radioMatch[1];
+    streamUrl = `https://stream.zeno.fm/${slug}`;
+    embedUrl = `https://zeno.fm/player/${slug}`;
+    type = 'station';
+    return { streamUrl, embedUrl, slug, type };
+  }
+
+  // 3. Player embed URL: https://zeno.fm/player/station-slug
+  const playerMatch = clean.match(/zeno\.fm\/player\/([a-zA-Z0-9_-]+)/i);
+  if (playerMatch && playerMatch[1]) {
+    slug = playerMatch[1];
+    streamUrl = `https://stream.zeno.fm/${slug}`;
+    embedUrl = `https://zeno.fm/player/${slug}`;
+    type = 'embed';
+    return { streamUrl, embedUrl, slug, type };
+  }
+
+  // 4. Raw key or custom HTTP/HTTPS stream URL
+  if (clean.startsWith('http://') || clean.startsWith('https://')) {
+    let secureUrl = clean;
+    if (typeof window !== 'undefined' && window.location.protocol === 'https:' && secureUrl.startsWith('http://stream.zeno.fm')) {
+      secureUrl = secureUrl.replace('http://', 'https://');
+    }
+    return {
+      streamUrl: secureUrl,
+      embedUrl: `https://zeno.fm/player/${slug}`,
+      slug,
+      type: 'stream',
+    };
+  }
+
+  // Plain mount key without protocol
+  if (/^[a-zA-Z0-9_-]+$/.test(clean)) {
+    return {
+      streamUrl: `https://stream.zeno.fm/${clean}`,
+      embedUrl: `https://zeno.fm/player/${clean}`,
+      slug: clean,
+      type: 'key',
+    };
+  }
+
+  return { streamUrl, embedUrl, slug, type };
+}
+
 // Helper to get or set local client storage
 function getLocal<T>(key: string, defaultValue: T): T {
   try {
@@ -428,7 +503,9 @@ export async function fetchRadioSettings(): Promise<{ config: RadioBossConfig & 
     port: 9000,
     password: '',
     streamUrl: 'https://stream.zeno.fm/f3wvbbqmdg8uv',
-    stationName: 'RadioBOSS Stream (Radio Kristiani)',
+    zenoStationUrl: 'https://zeno.fm/radio/eklesia-radio',
+    whatsappNumber: '081234567890',
+    stationName: 'Eklesia Radio (Radio Kristiani)',
     autoSyncSeconds: 3,
   });
 
@@ -441,7 +518,9 @@ export async function updateRadioSettings(payload: Partial<RadioBossConfig>): Pr
     host: '127.0.0.1',
     port: 9000,
     streamUrl: 'https://stream.zeno.fm/f3wvbbqmdg8uv',
-    stationName: 'RadioBOSS Stream (Radio Kristiani)',
+    zenoStationUrl: 'https://zeno.fm/radio/eklesia-radio',
+    whatsappNumber: '081234567890',
+    stationName: 'Eklesia Radio (Radio Kristiani)',
     autoSyncSeconds: 3,
   });
 

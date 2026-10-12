@@ -1,5 +1,5 @@
 import React from 'react';
-import { Radio, MessageSquare, ListMusic, Calendar, Server } from 'lucide-react';
+import { Radio, MessageSquare, ListMusic, Calendar, Link2 } from 'lucide-react';
 
 interface MobileBottomNavProps {
   activeTab: 'player' | 'chat' | 'schedule' | 'history' | 'bridge';
@@ -17,7 +17,7 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
     { id: 'chat' as const, label: 'Obrolan', icon: MessageSquare, badge: unreadCount },
     { id: 'history' as const, label: 'Lagu', icon: ListMusic },
     { id: 'schedule' as const, label: 'Jadwal', icon: Calendar },
-    { id: 'bridge' as const, label: 'Server', icon: Server },
+    { id: 'bridge' as const, label: 'Link Zeno', icon: Link2 },
   ];
 
   return (

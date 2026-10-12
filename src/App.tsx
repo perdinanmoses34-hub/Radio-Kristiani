@@ -12,7 +12,7 @@ import { fetchRadioStatus } from './services/api';
 import {
   Calendar,
   Music,
-  Server,
+  Link2,
   MessageSquare,
   Radio,
 } from 'lucide-react';
@@ -118,27 +118,27 @@ export default function App() {
                     </div>
                   </div>
 
-                  {/* RadioBOSS Bridge Status Card */}
+                  {/* Zeno FM Link Status Card */}
                   <div
                     onClick={() => setActiveTab('bridge')}
                     className="group rounded-2xl border border-neutral-800/80 bg-neutral-900/60 p-3.5 hover:border-neutral-700 transition-all cursor-pointer select-none"
                   >
                     <div className="flex items-center justify-between text-xs text-neutral-400">
                       <span className="font-semibold text-neutral-300 flex items-center gap-1.5">
-                        <Server className="h-3.5 w-3.5 text-amber-400 shrink-0" />
-                        <span>Server RadioBOSS</span>
+                        <Link2 className="h-3.5 w-3.5 text-amber-400 shrink-0" />
+                        <span>Link Zeno FM</span>
                       </span>
-                      <span className="text-amber-400 font-mono text-[11px] group-hover:underline">Kelola →</span>
+                      <span className="text-amber-400 font-mono text-[11px] group-hover:underline">Atur →</span>
                     </div>
                     <div className="mt-1.5">
                       <div className="flex items-center gap-1.5">
-                        <span className="h-2 w-2 rounded-full bg-emerald-400 shrink-0" />
+                        <span className="h-2 w-2 rounded-full bg-emerald-400 shrink-0 animate-pulse" />
                         <h3 className="text-sm font-bold text-white truncate">
-                          {status?.mode === 'live' ? 'RadioBOSS Live' : 'Simulator Aktif'}
+                          Siaran Online Zeno
                         </h3>
                       </div>
                       <p className="text-xs text-neutral-400 truncate mt-0.5">
-                        Metadata now-playing otomatis
+                        Tempel link dari Zeno &amp; RadioBOSS
                       </p>
                     </div>
                   </div>

@@ -1,773 +1,452 @@
 import React, { useState, useEffect } from 'react';
 import {
-  Server,
+  Link as LinkIcon,
+  Play,
+  Pause,
   CheckCircle2,
-  AlertCircle,
-  RefreshCw,
-  Sliders,
-  Radio,
-  ExternalLink,
-  Save,
-  HelpCircle,
   Copy,
   Check,
-  Terminal,
-  Zap,
-  Play,
-  ArrowRight,
+  ExternalLink,
+  Save,
+  Radio,
+  Smartphone,
+  Share2,
   Sparkles,
-  Layers,
+  Volume2,
+  MessageCircle,
+  HelpCircle,
+  RadioTower,
+  RefreshCw,
 } from 'lucide-react';
+import { parseZenoInput } from '../services/api';
 import { RadioBossConfig } from '../types/radio';
-import {
-  fetchRadioSettings,
-  updateRadioSettings,
-  testRadioConnection,
-  fetchWebhookLogs,
-  simulateMetadataPush,
-} from '../services/api';
 
 export const RadioBossBridge: React.FC = () => {
-  const [config, setConfig] = useState<RadioBossConfig>({
-    mode: 'simulation',
-    host: '127.0.0.1',
-    port: 9000,
-    password: '',
-    streamUrl: 'https://stream.zeno.fm/f3wvbbqmdg8uv',
-    stationName: 'RadioBOSS Stream',
-    autoSyncSeconds: 3,
+  const [zenoInput, setZenoInput] = useState(() => {
+    return localStorage.getItem('zeno_station_url') || 'https://stream.zeno.fm/f3wvbbqmdg8uv';
+  });
+  const [whatsappNumber, setWhatsappNumber] = useState(() => {
+    return localStorage.getItem('radio_whatsapp') || '081234567890';
+  });
+  const [stationName, setStationName] = useState(() => {
+    return localStorage.getItem('radio_station_name') || 'Eklesia Radio (Radio Kristiani)';
   });
 
-  const [bridgeTab, setBridgeTab] = useState<'webhook' | 'settings' | 'guide'>('webhook');
-  const [isLoading, setIsLoading] = useState(true);
-  const [isSaving, setIsSaving] = useState(false);
+  const [isTestingAudio, setIsTestingAudio] = useState(false);
+  const [testAudioError, setTestAudioError] = useState<string | null>(null);
   const [saveSuccess, setSaveSuccess] = useState(false);
+  const [copiedLink, setCopiedLink] = useState<string | null>(null);
 
-  // Test connection state
-  const [isTesting, setIsTesting] = useState(false);
-  const [testResult, setTestResult] = useState<{
-    success: boolean;
-    latency: number;
-    message?: string;
-    error?: string;
-    currentSong?: string;
-  } | null>(null);
+  // Audio ref for live test button
+  const testAudioRef = React.useRef<HTMLAudioElement | null>(null);
 
-  // Webhook state & logs
-  const [webhookLogs, setWebhookLogs] = useState<Array<{
-    id: string;
-    timestamp: string;
-    artist: string;
-    title: string;
-    raw: string;
-    method: string;
-  }>>([]);
-  const [currentLiveTrack, setCurrentLiveTrack] = useState<any>(null);
-  const [isSimulatingPush, setIsSimulatingPush] = useState(false);
-  const [simArtist, setSimArtist] = useState('Sheila on 7');
-  const [simTitle, setSimTitle] = useState('Sephia');
-  const [simSuccess, setSimSuccess] = useState(false);
+  // Parse current input
+  const parsed = parseZenoInput(zenoInput);
 
-  const [copiedUrl, setCopiedUrl] = useState<string | null>(null);
-
-  const appOrigin = typeof window !== 'undefined' ? window.location.origin : '';
-  const webhookUrlFull = `${appOrigin}/api/radioboss/webhook?artist=%artist&title=%title&album=%album&duration=%duration`;
-  const webhookUrlSimple = `${appOrigin}/api/radioboss/webhook?casttitle=%casttitle`;
-
-  const loadSettingsAndLogs = async () => {
-    try {
-      const [settingsData, logsData] = await Promise.all([
-        fetchRadioSettings().catch(() => null),
-        fetchWebhookLogs().catch(() => null),
-      ]);
-
-      if (settingsData?.config) {
-        setConfig((prev) => ({
-          ...prev,
-          ...settingsData.config,
-          password: settingsData.config.password || '',
-        }));
-      }
-
-      if (logsData) {
-        setWebhookLogs(logsData.logs || []);
-        setCurrentLiveTrack(logsData.current || null);
-      }
-    } catch (err) {
-      console.error('Failed to load data:', err);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  // Construct mobile shareable link
+  const currentOrigin = typeof window !== 'undefined' ? window.location.origin + window.location.pathname : '';
+  const mobileShareUrl = `${currentOrigin}?stream=${encodeURIComponent(parsed.streamUrl)}&station=${encodeURIComponent(stationName)}`;
 
   useEffect(() => {
-    loadSettingsAndLogs();
-    const interval = setInterval(async () => {
-      try {
-        const logsData = await fetchWebhookLogs();
-        setWebhookLogs(logsData.logs || []);
-        setCurrentLiveTrack(logsData.current || null);
-      } catch {
-        // silent
+    return () => {
+      if (testAudioRef.current) {
+        testAudioRef.current.pause();
+        testAudioRef.current.src = '';
       }
-    }, 3000);
-    return () => clearInterval(interval);
+    };
   }, []);
 
-  const handleSave = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsSaving(true);
-    setSaveSuccess(false);
-
-    try {
-      await updateRadioSettings(config);
-      setSaveSuccess(true);
-      setTimeout(() => setSaveSuccess(false), 3000);
-    } catch (err) {
-      console.error('Save failed:', err);
-    } finally {
-      setIsSaving(false);
+  const handleToggleTestAudio = async () => {
+    if (isTestingAudio) {
+      if (testAudioRef.current) {
+        testAudioRef.current.pause();
+      }
+      setIsTestingAudio(false);
+      return;
     }
-  };
 
-  const handleTestConnection = async () => {
-    setIsTesting(true);
-    setTestResult(null);
-
+    setTestAudioError(null);
     try {
-      const result = await testRadioConnection({
-        host: config.host,
-        port: config.port,
-        password: config.password,
-      });
-      setTestResult(result);
+      if (!testAudioRef.current) {
+        testAudioRef.current = new Audio();
+      }
+      const audio = testAudioRef.current;
+      audio.src = `${parsed.streamUrl}?test=${Date.now()}`;
+      await audio.play();
+      setIsTestingAudio(true);
     } catch (err: any) {
-      setTestResult({
-        success: false,
-        latency: 0,
-        error: err.message || 'Koneksi gagal',
-      });
-    } finally {
-      setIsTesting(false);
+      setIsTestingAudio(false);
+      setTestAudioError('Tidak dapat memutar suara dari link ini. Pastikan penyiaran di RadioBOSS & Zeno FM sedang aktif.');
     }
   };
 
-  const handleSimulatePush = async () => {
-    if (!simArtist.trim() || !simTitle.trim()) return;
-    setIsSimulatingPush(true);
+  const handlePasteClipboard = async () => {
     try {
-      await simulateMetadataPush({
-        artist: simArtist.trim(),
-        title: simTitle.trim(),
-        album: 'RadioBOSS Live Broadcast',
-        duration: 230,
-      });
-      setSimSuccess(true);
-      setTimeout(() => setSimSuccess(false), 3000);
-      const logsData = await fetchWebhookLogs();
-      setWebhookLogs(logsData.logs || []);
-      setCurrentLiveTrack(logsData.current || null);
-    } catch (err) {
-      console.error('Simulate push error:', err);
-    } finally {
-      setIsSimulatingPush(false);
+      if (navigator.clipboard) {
+        const text = await navigator.clipboard.readText();
+        if (text) {
+          setZenoInput(text.trim());
+        }
+      }
+    } catch {
+      // clipboard permission denied
     }
   };
 
-  const copyToClipboard = (text: string, id: string) => {
-    navigator.clipboard.writeText(text);
-    setCopiedUrl(id);
-    setTimeout(() => setCopiedUrl(null), 2000);
+  const handleSaveSettings = (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    const cleanZeno = zenoInput.trim();
+    localStorage.setItem('zeno_station_url', cleanZeno);
+    localStorage.setItem('radio_whatsapp', whatsappNumber.trim());
+    localStorage.setItem('radio_station_name', stationName.trim());
+
+    // Update radio_config object in localStorage
+    try {
+      const existing = localStorage.getItem('radio_config');
+      const cfg: RadioBossConfig = existing ? JSON.parse(existing) : {
+        mode: 'simulation',
+        host: '127.0.0.1',
+        port: 9000,
+        streamUrl: parsed.streamUrl,
+        stationName: stationName.trim(),
+        autoSyncSeconds: 3,
+      };
+      cfg.streamUrl = parsed.streamUrl;
+      cfg.zenoStationUrl = cleanZeno;
+      cfg.stationName = stationName.trim();
+      cfg.whatsappNumber = whatsappNumber.trim();
+      localStorage.setItem('radio_config', JSON.stringify(cfg));
+    } catch {
+      // ignore
+    }
+
+    setSaveSuccess(true);
+    setTimeout(() => setSaveSuccess(false), 2500);
+  };
+
+  const handleCopy = (text: string, label: string) => {
+    if (navigator.clipboard) {
+      navigator.clipboard.writeText(text);
+      setCopiedLink(label);
+      setTimeout(() => setCopiedLink(null), 2000);
+    }
+  };
+
+  const handleUsePreset = (url: string, name: string) => {
+    setZenoInput(url);
+    setStationName(name);
   };
 
   return (
-    <div className="space-y-5 w-full max-w-full overflow-hidden">
-      {/* Top Banner Status */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3.5 rounded-2xl sm:rounded-3xl border border-neutral-800 bg-neutral-900/90 p-4 sm:p-5 backdrop-blur-xl w-full max-w-full overflow-hidden">
-        <div className="flex items-start sm:items-center gap-3 min-w-0">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-amber-500/15 border border-amber-500/30 text-amber-400 shrink-0">
-            <Radio className="h-5 w-5" />
-          </div>
-          <div className="min-w-0">
-            <div className="flex items-center gap-2 flex-wrap">
-              <h2 className="text-sm sm:text-base font-bold text-white truncate">
-                Koneksi RadioBOSS Ultimate 7.1
-              </h2>
-              <span className="rounded bg-neutral-800 px-1.5 py-0.5 text-[10px] font-mono text-amber-400 border border-neutral-700 shrink-0">
-                v7.1.1.4
-              </span>
+    <div className="space-y-6 max-w-4xl mx-auto w-full pb-10">
+      {/* Header Banner */}
+      <div className="rounded-3xl border border-neutral-800 bg-gradient-to-br from-neutral-900 via-neutral-900 to-neutral-950 p-5 sm:p-7 shadow-xl relative overflow-hidden">
+        <div className="pointer-events-none absolute -right-16 -top-16 h-56 w-56 rounded-full bg-amber-500/10 blur-3xl" />
+        
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+          <div className="flex items-center gap-3.5">
+            <div className="flex h-12 w-12 sm:h-14 sm:w-14 items-center justify-center rounded-2xl bg-amber-500/15 border border-amber-500/30 text-amber-400 shrink-0 shadow-lg">
+              <LinkIcon className="h-6 w-6 sm:h-7 sm:w-7" />
             </div>
-            <p className="text-xs text-neutral-400 mt-0.5 truncate">
-              Stasiun: <strong className="text-neutral-200">{config.stationName}</strong>
-            </p>
+            <div>
+              <div className="flex items-center gap-2">
+                <h1 className="text-xl sm:text-2xl font-black text-white tracking-tight">
+                  Pengaturan Link Zeno FM
+                </h1>
+                <span className="rounded-full bg-emerald-500/20 border border-emerald-500/30 px-2.5 py-0.5 text-[10px] font-bold text-emerald-300">
+                  Online
+                </span>
+              </div>
+              <p className="text-xs sm:text-sm text-neutral-400 mt-0.5">
+                Cukup tempelkan link live dari Zeno FM. Server audio di-handle oleh RadioBOSS &amp; Zeno FM.
+              </p>
+            </div>
           </div>
-        </div>
 
-        {/* Sub-tab navigation buttons */}
-        <div className="flex items-center gap-1 rounded-xl bg-neutral-950 p-1 border border-neutral-800 w-full sm:w-auto overflow-x-auto no-scrollbar shrink-0">
           <button
-            onClick={() => setBridgeTab('webhook')}
-            className={`rounded-lg px-3 py-1.5 text-xs font-semibold transition-colors cursor-pointer ${
-              bridgeTab === 'webhook'
-                ? 'bg-amber-500 text-neutral-950 shadow'
-                : 'text-neutral-400 hover:text-white'
-            }`}
+            onClick={() => handleSaveSettings()}
+            className="flex items-center gap-2 rounded-xl bg-amber-500 hover:bg-amber-400 px-5 py-2.5 text-xs font-bold text-neutral-950 transition-all shadow-md shadow-amber-500/20 cursor-pointer shrink-0 active:scale-95"
           >
-            Webhook / Push URL
-          </button>
-          <button
-            onClick={() => setBridgeTab('settings')}
-            className={`rounded-lg px-3 py-1.5 text-xs font-semibold transition-colors cursor-pointer ${
-              bridgeTab === 'settings'
-                ? 'bg-amber-500 text-neutral-950 shadow'
-                : 'text-neutral-400 hover:text-white'
-            }`}
-          >
-            Pengaturan Server API
-          </button>
-          <button
-            onClick={() => setBridgeTab('guide')}
-            className={`rounded-lg px-3 py-1.5 text-xs font-semibold transition-colors cursor-pointer ${
-              bridgeTab === 'guide'
-                ? 'bg-amber-500 text-neutral-950 shadow'
-                : 'text-neutral-400 hover:text-white'
-            }`}
-          >
-            Panduan RadioBOSS & Zeno
-          </button>
-        </div>
-      </div>
-
-      {/* Mobile Listener Link Card - Auto-Sync Mobile Phones */}
-      <div className="rounded-2xl border border-amber-500/30 bg-gradient-to-r from-amber-500/10 via-neutral-900 to-neutral-900 p-4 sm:p-5 backdrop-blur-xl">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-          <div className="min-w-0">
-            <span className="text-[11px] font-bold uppercase tracking-wider text-amber-400 block">
-              Bagikan Siaran ke Handphone Pendengar & Jemaat
-            </span>
-            <p className="mt-1 text-xs text-neutral-300 leading-relaxed">
-              Buka link ini di HP Anda (atau bagikan ke WhatsApp pendengar). Handphone akan <strong>otomatis 100% tersambung ke siaran Eklesia Radio</strong> tanpa perlu mengatur server lagi!
-            </p>
-          </div>
-          <button
-            onClick={() => {
-              const url = `${window.location.origin}${window.location.pathname}?stream=${encodeURIComponent(config.streamUrl)}&station=${encodeURIComponent(config.stationName)}`;
-              copyToClipboard(url, 'share_mobile');
-            }}
-            className="flex items-center gap-1.5 rounded-xl bg-amber-500 hover:bg-amber-400 px-4 py-2.5 text-xs font-bold text-neutral-950 transition-all shrink-0 cursor-pointer shadow-md shadow-amber-500/20 active:scale-95"
-          >
-            {copiedUrl === 'share_mobile' ? (
+            {saveSuccess ? (
               <>
                 <Check className="h-4 w-4" />
-                <span>Link HP Tersalin!</span>
+                <span>Tersimpan!</span>
               </>
             ) : (
               <>
-                <Copy className="h-4 w-4" />
-                <span>Salin Link untuk HP</span>
+                <Save className="h-4 w-4" />
+                <span>Simpan Perubahan</span>
               </>
             )}
           </button>
         </div>
       </div>
 
-      {/* TAB 1: WEBHOOK & METADATA PUSH (EASIEST & MOST ROBUST FOR BROADCASTERS) */}
-      {bridgeTab === 'webhook' && (
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-          {/* Main Webhook Setup */}
-          <div className="lg:col-span-7 rounded-2xl border border-neutral-800 bg-neutral-900/90 p-5 sm:p-6 backdrop-blur-xl shadow-xl space-y-5">
-            <div>
-              <div className="flex items-center gap-2">
-                <Zap className="h-4 w-4 text-amber-400" />
-                <h3 className="text-sm font-bold text-white">
-                  URL Webhook Pembaruan Lagu Real-Time
-                </h3>
-              </div>
-              <p className="mt-1 text-xs text-neutral-400 leading-relaxed">
-                Salin link ini ke RadioBOSS Anda. Setiap kali lagu berganti (<strong>On track start</strong>), RadioBOSS akan otomatis mengirim metadata lagu ke aplikasi ini tanpa perlu setting IP publik atau port forwarding!
-              </p>
-            </div>
-
-            {/* Primary Webhook Box */}
-            <div className="space-y-3">
-              <label className="block text-xs font-semibold text-neutral-300">
-                1. Webhook Lengkap (Artis, Judul, Album, Durasi):
-              </label>
-              <div className="flex items-center gap-2 rounded-xl bg-neutral-950 p-2.5 border border-neutral-800">
-                <input
-                  type="text"
-                  readOnly
-                  value={webhookUrlFull}
-                  className="flex-1 bg-transparent text-xs font-mono text-amber-300 outline-none select-all truncate"
-                />
-                <button
-                  onClick={() => copyToClipboard(webhookUrlFull, 'full')}
-                  className="flex items-center gap-1 rounded-lg bg-neutral-800 hover:bg-neutral-700 px-2.5 py-1 text-xs text-neutral-200 transition-colors shrink-0 cursor-pointer"
-                >
-                  {copiedUrl === 'full' ? (
-                    <>
-                      <Check className="h-3.5 w-3.5 text-emerald-400" />
-                      <span className="text-emerald-400">Tersalin!</span>
-                    </>
-                  ) : (
-                    <>
-                      <Copy className="h-3.5 w-3.5" />
-                      <span>Salin</span>
-                    </>
-                  )}
-                </button>
-              </div>
-
-              <label className="block text-xs font-semibold text-neutral-300 mt-2">
-                2. Webhook Alternatif (Format %casttitle):
-              </label>
-              <div className="flex items-center gap-2 rounded-xl bg-neutral-950 p-2.5 border border-neutral-800">
-                <input
-                  type="text"
-                  readOnly
-                  value={webhookUrlSimple}
-                  className="flex-1 bg-transparent text-xs font-mono text-neutral-400 outline-none select-all truncate"
-                />
-                <button
-                  onClick={() => copyToClipboard(webhookUrlSimple, 'simple')}
-                  className="flex items-center gap-1 rounded-lg bg-neutral-800 hover:bg-neutral-700 px-2.5 py-1 text-xs text-neutral-200 transition-colors shrink-0 cursor-pointer"
-                >
-                  {copiedUrl === 'simple' ? (
-                    <>
-                      <Check className="h-3.5 w-3.5 text-emerald-400" />
-                      <span className="text-emerald-400">Tersalin!</span>
-                    </>
-                  ) : (
-                    <>
-                      <Copy className="h-3.5 w-3.5" />
-                      <span>Salin</span>
-                    </>
-                  )}
-                </button>
-              </div>
-            </div>
-
-            {/* Test Simulation Card */}
-            <div className="rounded-xl border border-neutral-800 bg-neutral-950/70 p-4 space-y-3">
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-bold text-white flex items-center gap-1.5">
-                  <Sparkles className="h-3.5 w-3.5 text-amber-400" />
-                  <span>Uji Kirim Metadata Lagu (Simulasi RadioBOSS)</span>
-                </span>
-                <span className="text-[11px] text-neutral-400">Test Update Sekarang</span>
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
-                <div>
-                  <label className="text-[11px] text-neutral-400 block mb-1">Nama Artis</label>
-                  <input
-                    type="text"
-                    value={simArtist}
-                    onChange={(e) => setSimArtist(e.target.value)}
-                    className="w-full rounded-lg bg-neutral-900 border border-neutral-800 px-2.5 py-1.5 text-white focus:border-amber-500 focus:outline-none"
-                  />
-                </div>
-                <div>
-                  <label className="text-[11px] text-neutral-400 block mb-1">Judul Lagu</label>
-                  <input
-                    type="text"
-                    value={simTitle}
-                    onChange={(e) => setSimTitle(e.target.value)}
-                    className="w-full rounded-lg bg-neutral-900 border border-neutral-800 px-2.5 py-1.5 text-white focus:border-amber-500 focus:outline-none"
-                  />
-                </div>
-              </div>
-
-              <div className="flex items-center justify-between pt-1">
-                <span className="text-[11px] text-neutral-500">
-                  Klik untuk melihat judul lagu berganti langsung di player & chat!
-                </span>
-                <button
-                  onClick={handleSimulatePush}
-                  disabled={isSimulatingPush}
-                  className="flex items-center gap-1.5 rounded-lg bg-amber-500 hover:bg-amber-400 px-3 py-1.5 text-xs font-bold text-neutral-950 transition-colors cursor-pointer disabled:opacity-50"
-                >
-                  <Play className="h-3 w-3 fill-current" />
-                  <span>{isSimulatingPush ? 'Mengirim...' : 'Kirim Uji'}</span>
-                </button>
-              </div>
-
-              {simSuccess && (
-                <div className="rounded-lg bg-emerald-500/15 border border-emerald-500/30 p-2 text-xs text-emerald-300 flex items-center gap-2">
-                  <CheckCircle2 className="h-3.5 w-3.5 text-emerald-400 shrink-0" />
-                  <span>Metadata berhasil diperbarui! Cek pemutar audio di atas.</span>
-                </div>
-              )}
-            </div>
+      {/* CARD 1: TEMPELKAN LINK STREAMING ZENO FM */}
+      <section className="rounded-3xl border border-neutral-800 bg-neutral-900/90 p-5 sm:p-7 backdrop-blur-xl shadow-xl space-y-5">
+        <div className="flex items-center justify-between border-b border-neutral-800 pb-3">
+          <div className="flex items-center gap-2 text-white font-bold text-base">
+            <RadioTower className="h-5 w-5 text-amber-400" />
+            <span>Tempelkan Link Siaran Zeno FM</span>
           </div>
-
-          {/* Webhook Activity Feed */}
-          <div className="lg:col-span-5 rounded-2xl border border-neutral-800 bg-neutral-900/90 p-5 sm:p-6 backdrop-blur-xl shadow-xl flex flex-col h-full">
-            <div className="flex items-center justify-between border-b border-neutral-800 pb-3">
-              <h3 className="text-sm font-bold text-white flex items-center gap-2">
-                <Terminal className="h-4 w-4 text-amber-400" />
-                <span>Log Ping Masuk RadioBOSS</span>
-              </h3>
-              <span className="text-[11px] font-mono tabular-nums text-emerald-400 bg-emerald-500/10 px-1.5 py-0.5 rounded border border-emerald-500/20">
-                Live Sinkron
-              </span>
-            </div>
-
-            {/* Currently Active Live Track */}
-            {currentLiveTrack && (
-              <div className="mt-4 rounded-xl bg-amber-500/10 border border-amber-500/30 p-3 text-xs">
-                <span className="text-[10px] font-mono uppercase tracking-wider text-amber-400 block font-semibold">
-                  Metadata Aktif Saat Ini
-                </span>
-                <div className="mt-1 font-bold text-white text-sm">
-                  {currentLiveTrack.artist} - {currentLiveTrack.title}
-                </div>
-                <div className="mt-0.5 text-neutral-400 text-[11px]">
-                  Durasi: {Math.floor(currentLiveTrack.duration / 60)}:
-                  {String(currentLiveTrack.duration % 60).padStart(2, '0')} · Album:{' '}
-                  {currentLiveTrack.album || 'RadioBOSS'}
-                </div>
-              </div>
-            )}
-
-            {/* History Logs */}
-            <div className="mt-4 flex-1 overflow-y-auto space-y-2 max-h-[320px] text-xs">
-              {webhookLogs.length === 0 ? (
-                <div className="py-12 text-center text-xs text-neutral-500">
-                  Menunggu ping metadata pertama dari RadioBOSS atau tombol uji di sebelah kiri.
-                </div>
-              ) : (
-                webhookLogs.map((log) => (
-                  <div
-                    key={log.id}
-                    className="rounded-lg bg-neutral-950 p-2.5 border border-neutral-800/80 hover:border-neutral-700 transition-colors"
-                  >
-                    <div className="flex items-center justify-between text-[11px]">
-                      <span className="font-semibold text-neutral-200">
-                        {log.artist} - {log.title}
-                      </span>
-                      <span className="font-mono tabular-nums text-neutral-500">{log.timestamp}</span>
-                    </div>
-                    <div className="mt-1 text-[10px] font-mono text-neutral-500 truncate">
-                      {log.method} · {log.raw}
-                    </div>
-                  </div>
-                ))
-              )}
-            </div>
-          </div>
+          <span className="text-[11px] text-neutral-500 hidden sm:inline">
+            Mendukung semua format link Zeno FM
+          </span>
         </div>
-      )}
 
-      {/* TAB 2: SERVER SETTINGS & REMOTE CONTROL API (PULL MODE) */}
-      {bridgeTab === 'settings' && (
-        <div className="rounded-2xl border border-neutral-800 bg-neutral-900/90 p-5 sm:p-6 backdrop-blur-xl shadow-xl">
-          <h3 className="text-sm font-bold text-white flex items-center gap-2 border-b border-neutral-800 pb-3">
-            <Sliders className="h-4 w-4 text-amber-400" />
-            <span>Pengaturan Server & Remote Control RadioBOSS</span>
-          </h3>
+        <form onSubmit={(e) => handleSaveSettings(e)} className="space-y-4">
+          <div>
+            <label className="block text-xs font-semibold text-neutral-300 mb-1.5">
+              URL Stream / Halaman Stasiun Zeno FM <span className="text-amber-400">*</span>
+            </label>
+            <div className="flex flex-col sm:flex-row gap-2">
+              <div className="relative flex-1">
+                <input
+                  type="text"
+                  value={zenoInput}
+                  onChange={(e) => setZenoInput(e.target.value)}
+                  placeholder="Contoh: https://stream.zeno.fm/f3wvbbqmdg8uv atau https://zeno.fm/radio/eklesia-radio"
+                  required
+                  className="w-full rounded-2xl bg-neutral-950 border border-neutral-700/80 px-4 py-3 text-sm text-white font-mono placeholder-neutral-600 focus:border-amber-500 focus:outline-none transition-colors"
+                />
+              </div>
 
-          <form onSubmit={handleSave} className="mt-5 space-y-4 text-xs">
-            {/* Mode selection */}
-            <div>
-              <label className="block font-medium text-neutral-300 mb-1.5">
-                Mode Integrasi
-              </label>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div className="flex items-center gap-2 shrink-0">
                 <button
                   type="button"
-                  onClick={() => setConfig({ ...config, mode: 'simulation' })}
-                  className={`rounded-xl p-3 text-left border transition-all cursor-pointer ${
-                    config.mode === 'simulation'
-                      ? 'border-amber-500 bg-amber-500/10 text-white ring-1 ring-amber-500/30'
-                      : 'border-neutral-800 bg-neutral-950/60 text-neutral-400 hover:border-neutral-700'
-                  }`}
+                  onClick={handlePasteClipboard}
+                  className="flex-1 sm:flex-initial flex items-center justify-center gap-1.5 rounded-2xl bg-neutral-800 hover:bg-neutral-700 border border-neutral-700 px-3.5 py-3 text-xs font-semibold text-neutral-200 transition-colors cursor-pointer"
+                  title="Tempel dari Clipboard"
                 >
-                  <div className="font-semibold text-amber-300">Auto-Pilot Simulator + Webhook</div>
-                  <p className="mt-0.5 text-[11px] text-neutral-400">
-                    Memutar rotasi katalog otomatis saat RadioBOSS offline, dan langsung beralih ke lagu RadioBOSS saat webhook diterima.
-                  </p>
+                  <Copy className="h-4 w-4 text-amber-400" />
+                  <span>Tempel</span>
                 </button>
 
                 <button
                   type="button"
-                  onClick={() => setConfig({ ...config, mode: 'live' })}
-                  className={`rounded-xl p-3 text-left border transition-all cursor-pointer ${
-                    config.mode === 'live'
-                      ? 'border-emerald-500 bg-emerald-500/10 text-white ring-1 ring-emerald-500/30'
-                      : 'border-neutral-800 bg-neutral-950/60 text-neutral-400 hover:border-neutral-700'
+                  onClick={handleToggleTestAudio}
+                  className={`flex-1 sm:flex-initial flex items-center justify-center gap-1.5 rounded-2xl px-4 py-3 text-xs font-bold transition-all cursor-pointer ${
+                    isTestingAudio
+                      ? 'bg-rose-500 text-white animate-pulse'
+                      : 'bg-neutral-800 hover:bg-neutral-700 text-amber-400 border border-neutral-700'
                   }`}
+                  title="Uji Putar Suara Stream"
                 >
-                  <div className="font-semibold text-emerald-300">Live Remote API Client</div>
-                  <p className="mt-0.5 text-[11px] text-neutral-400">
-                    Server web secara aktif meminta data ke IP PC RadioBOSS Anda pada port 9000 melalui query HTTP.
-                  </p>
+                  {isTestingAudio ? (
+                    <>
+                      <Pause className="h-4 w-4" />
+                      <span>Hentikan Uji</span>
+                    </>
+                  ) : (
+                    <>
+                      <Volume2 className="h-4 w-4" />
+                      <span>Uji Suara</span>
+                    </>
+                  )}
+                </button>
+
+                <button
+                  type="submit"
+                  className="flex-1 sm:flex-initial flex items-center justify-center gap-1.5 rounded-2xl bg-amber-500 hover:bg-amber-400 px-5 py-3 text-xs font-bold text-neutral-950 transition-colors shadow-md shadow-amber-500/20 cursor-pointer"
+                >
+                  {saveSuccess ? 'Tersimpan!' : 'Simpan Link'}
                 </button>
               </div>
             </div>
 
-            {/* Host & Port */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-              <div className="sm:col-span-2">
-                <label className="block font-medium text-neutral-300 mb-1">
-                  Host / IP Address RadioBOSS (Menu Settings &gt; API)
-                </label>
-                <input
-                  type="text"
-                  value={config.host}
-                  onChange={(e) => setConfig({ ...config, host: e.target.value })}
-                  placeholder="127.0.0.1, IP publik, atau domain"
-                  className="w-full rounded-xl bg-neutral-950 border border-neutral-800 px-3 py-2 text-white font-mono focus:border-amber-500 focus:outline-none"
-                  required
-                />
-              </div>
+            {testAudioError && (
+              <p className="mt-2 text-xs text-rose-400 bg-rose-500/10 border border-rose-500/20 rounded-xl p-2.5">
+                {testAudioError}
+              </p>
+            )}
+          </div>
 
-              <div>
-                <label className="block font-medium text-neutral-300 mb-1">
-                  Port API RadioBOSS
-                </label>
-                <input
-                  type="number"
-                  value={config.port}
-                  onChange={(e) => setConfig({ ...config, port: parseInt(e.target.value, 10) || 9000 })}
-                  placeholder="9000"
-                  className="w-full rounded-xl bg-neutral-950 border border-neutral-800 px-3 py-2 text-white font-mono focus:border-amber-500 focus:outline-none"
-                  required
-                />
-              </div>
-            </div>
-
-            {/* API Password */}
-            <div>
-              <label className="block font-medium text-neutral-300 mb-1">
-                Password API RadioBOSS
-              </label>
-              <input
-                type="password"
-                value={config.password}
-                onChange={(e) => setConfig({ ...config, password: e.target.value })}
-                placeholder="Password yang diatur pada menu API di RadioBOSS"
-                className="w-full rounded-xl bg-neutral-950 border border-neutral-800 px-3 py-2 text-white font-mono focus:border-amber-500 focus:outline-none"
-              />
-              <span className="text-[11px] text-neutral-500 mt-1 block">
-                Buka RadioBOSS &gt; Settings &gt; API &gt; tentukan Password.
+          {/* Auto-Detection Status Card */}
+          <div className="rounded-2xl bg-neutral-950 p-4 border border-neutral-800 text-xs space-y-2">
+            <div className="flex items-center justify-between text-neutral-400">
+              <span className="font-semibold text-neutral-300">Hasil Analisis Tautan Zeno FM:</span>
+              <span className="font-mono text-amber-400 text-[11px]">
+                {parsed.type === 'stream' ? 'Stream Audio Langsung' : parsed.type === 'station' ? 'Stasiun Zeno FM' : 'Kode Mount'}
               </span>
             </div>
 
-            {/* Stream URL */}
-            <div>
-              <label className="block font-medium text-neutral-300 mb-1">
-                URL Audio Streaming Siaran (Icecast / Shoutcast / Server Encoder)
-              </label>
-              <input
-                type="url"
-                value={config.streamUrl}
-                onChange={(e) => setConfig({ ...config, streamUrl: e.target.value })}
-                placeholder="http://ip-server:8000/live atau stream URL Anda"
-                className="w-full rounded-xl bg-neutral-950 border border-neutral-800 px-3 py-2 text-white font-mono focus:border-amber-500 focus:outline-none"
-                required
-              />
-              <span className="text-[11px] text-neutral-500 mt-1 block">
-                Diatur pada menu Settings &gt; Broadcast di RadioBOSS. Link audio ini diputar oleh browser pendengar.
-              </span>
-            </div>
-
-            {/* Station name & Sync interval */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              <div>
-                <label className="block font-medium text-neutral-300 mb-1">
-                  Nama Stasiun (Sesuai Station info di RadioBOSS)
-                </label>
-                <input
-                  type="text"
-                  value={config.stationName}
-                  onChange={(e) => setConfig({ ...config, stationName: e.target.value })}
-                  placeholder="RadioBOSS Stream"
-                  className="w-full rounded-xl bg-neutral-950 border border-neutral-800 px-3 py-2 text-white focus:border-amber-500 focus:outline-none"
-                />
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1 font-mono text-[11px]">
+              <div className="rounded-xl bg-neutral-900 p-2.5 border border-neutral-800/80">
+                <span className="text-neutral-500 block text-[10px]">URL Audio Stream (Diputar oleh Aplikasi):</span>
+                <span className="text-amber-300 truncate block mt-0.5">{parsed.streamUrl}</span>
               </div>
-
-              <div>
-                <label className="block font-medium text-neutral-300 mb-1">
-                  Interval Pembaruan (Detik)
-                </label>
-                <input
-                  type="number"
-                  min="1"
-                  max="30"
-                  value={config.autoSyncSeconds}
-                  onChange={(e) => setConfig({ ...config, autoSyncSeconds: parseInt(e.target.value, 10) || 3 })}
-                  className="w-full rounded-xl bg-neutral-950 border border-neutral-800 px-3 py-2 text-white font-mono focus:border-amber-500 focus:outline-none"
-                />
+              <div className="rounded-xl bg-neutral-900 p-2.5 border border-neutral-800/80">
+                <span className="text-neutral-500 block text-[10px]">URL Widget Player Resmi Zeno:</span>
+                <span className="text-neutral-300 truncate block mt-0.5">{parsed.embedUrl}</span>
               </div>
             </div>
+          </div>
 
-            {/* Action buttons */}
-            <div className="pt-3 border-t border-neutral-800 flex flex-wrap items-center justify-between gap-3">
+          {/* Preset Buttons */}
+          <div className="pt-1">
+            <span className="text-[11px] font-medium text-neutral-400 block mb-1.5">
+              Pilihan Contoh Cepat (Klik untuk mencoba):
+            </span>
+            <div className="flex flex-wrap gap-2">
               <button
                 type="button"
-                onClick={handleTestConnection}
-                disabled={isTesting}
-                className="flex items-center gap-1.5 rounded-xl bg-neutral-800 hover:bg-neutral-700 px-3.5 py-2 text-xs font-semibold text-neutral-200 border border-neutral-700 transition-colors cursor-pointer disabled:opacity-50"
+                onClick={() => handleUsePreset('https://stream.zeno.fm/f3wvbbqmdg8uv', 'Eklesia Radio (Radio Kristiani)')}
+                className="rounded-xl bg-neutral-950 hover:bg-neutral-800 border border-neutral-800 px-3 py-1.5 text-xs text-neutral-300 hover:text-amber-400 transition-colors cursor-pointer"
               >
-                <RefreshCw className={`h-3.5 w-3.5 ${isTesting ? 'animate-spin text-amber-400' : ''}`} />
-                <span>{isTesting ? 'Menguji Sambungan...' : 'Uji Koneksi (Test Ping)'}</span>
+                📻 Stream Zeno Default (Eklesia Radio)
               </button>
-
               <button
-                type="submit"
-                disabled={isSaving}
-                className="flex items-center gap-1.5 rounded-xl bg-amber-500 hover:bg-amber-400 px-4 py-2 text-xs font-bold text-neutral-950 transition-colors cursor-pointer shadow-md shadow-amber-500/20"
+                type="button"
+                onClick={() => handleUsePreset('https://zeno.fm/radio/eklesia-radio', 'Radio Kristiani')}
+                className="rounded-xl bg-neutral-950 hover:bg-neutral-800 border border-neutral-800 px-3 py-1.5 text-xs text-neutral-300 hover:text-amber-400 transition-colors cursor-pointer"
               >
-                <Save className="h-3.5 w-3.5" />
-                <span>{isSaving ? 'Menyimpan...' : 'Simpan Pengaturan'}</span>
+                🌐 Format Web Zeno (/radio/eklesia-radio)
               </button>
             </div>
+          </div>
+        </form>
+      </section>
 
-            {saveSuccess && (
-              <div className="rounded-xl bg-emerald-500/10 border border-emerald-500/30 p-2.5 text-xs text-emerald-300 flex items-center gap-2">
-                <CheckCircle2 className="h-4 w-4 shrink-0" />
-                <span>Pengaturan berhasil disimpan ke sistem server streaming!</span>
-              </div>
-            )}
-
-            {testResult && (
-              <div
-                className={`rounded-xl border p-3 text-xs flex items-start gap-2.5 ${
-                  testResult.success
-                    ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-300'
-                    : 'bg-rose-500/10 border-rose-500/30 text-rose-300'
-                }`}
-              >
-                {testResult.success ? (
-                  <CheckCircle2 className="h-4 w-4 shrink-0 mt-0.5" />
-                ) : (
-                  <AlertCircle className="h-4 w-4 shrink-0 mt-0.5" />
-                )}
-                <div>
-                  <div className="font-semibold">
-                    {testResult.success ? testResult.message : 'Koneksi Gagal'}
-                  </div>
-                  {testResult.success ? (
-                    <div className="mt-1 space-y-0.5 text-[11px] text-emerald-400">
-                      <div>Latensi respon API: <strong className="font-mono tabular-nums">{testResult.latency} ms</strong></div>
-                      {testResult.currentSong && <div>Metadata terdeteksi: {testResult.currentSong}</div>}
-                    </div>
-                  ) : (
-                    <div className="mt-1 text-[11px] text-rose-300/90 leading-relaxed">
-                      {testResult.error}
-                    </div>
-                  )}
-                </div>
-              </div>
-            )}
-          </form>
+      {/* CARD 2: TAUTAN KHUSUS UNTUK HANDPHONE & PENDENGAR */}
+      <section className="rounded-3xl border border-neutral-800 bg-neutral-900/90 p-5 sm:p-7 backdrop-blur-xl shadow-xl space-y-4">
+        <div className="flex items-center justify-between border-b border-neutral-800 pb-3">
+          <div className="flex items-center gap-2 text-white font-bold text-base">
+            <Smartphone className="h-5 w-5 text-amber-400" />
+            <span>Link Siap Pakai untuk Buka di Handphone</span>
+          </div>
+          <span className="text-[11px] text-neutral-500 hidden sm:inline">
+            Langsung memutar Zeno FM di HP
+          </span>
         </div>
-      )}
 
-      {/* TAB 3: VISUAL GUIDE MATCHING THEIR RADIOBOSS 7.1.1.4 SCREENSHOT */}
-      {bridgeTab === 'guide' && (
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {/* Card 1: Broadcast -> Metadata (Exact match to screenshot) */}
-          <div className="rounded-2xl border border-neutral-800 bg-neutral-900/90 p-5 backdrop-blur-xl shadow-xl flex flex-col justify-between">
-            <div>
-              <div className="flex items-center gap-2 text-amber-400 font-bold text-xs uppercase tracking-wider">
-                <span className="flex h-5 w-5 items-center justify-center rounded-full bg-amber-500/20 text-amber-400 text-xs">
-                  1
-                </span>
-                <span>Broadcast &gt; Metadata (Sesuai Foto)</span>
-              </div>
-              <h4 className="mt-2 text-sm font-bold text-white">
-                Format Judul & Nama Stasiun
-              </h4>
-              <p className="mt-2 text-xs text-neutral-300 leading-relaxed">
-                Pada tampilan yang Anda kirim:
-              </p>
-              <ul className="mt-2 space-y-1.5 text-xs text-neutral-400">
-                <li className="flex items-center gap-1.5">
-                  <Check className="h-3.5 w-3.5 text-emerald-400 shrink-0" />
-                  <span>Station Name: <strong>RadioBOSS Stream</strong></span>
-                </li>
-                <li className="flex items-center gap-1.5">
-                  <Check className="h-3.5 w-3.5 text-emerald-400 shrink-0" />
-                  <span>Title format: <code className="bg-neutral-800 text-amber-300 px-1 rounded font-mono">%artist - %title</code></span>
-                </li>
-                <li className="flex items-center gap-1.5">
-                  <Check className="h-3.5 w-3.5 text-emerald-400 shrink-0" />
-                  <span>Update title: <strong>On track start</strong></span>
-                </li>
-              </ul>
-              <p className="mt-3 text-[11px] text-neutral-400 bg-neutral-950 p-2.5 rounded-lg border border-neutral-800">
-                💡 Pengaturan format Anda sudah 100% pas! Sistem kami membaca pemisah <code className="text-amber-300 font-mono"> - </code> untuk membagi nama artis dan judul lagu.
-              </p>
-            </div>
-          </div>
+        <p className="text-xs text-neutral-400">
+          Gunakan tautan di bawah ini untuk membuka aplikasi di HP Anda atau membagikannya ke jemaat dan pendengar setia:
+        </p>
 
-          {/* Card 2: Audio Streaming Setup & Encoder Dialog */}
-          <div className="rounded-2xl border border-neutral-800 bg-neutral-900/90 p-5 backdrop-blur-xl shadow-xl flex flex-col justify-between">
-            <div>
-              <div className="flex items-center gap-2 text-amber-400 font-bold text-xs uppercase tracking-wider">
-                <span className="flex h-5 w-5 items-center justify-center rounded-full bg-amber-500/20 text-amber-400 text-xs">
-                  2
-                </span>
-                <span>Menu 'Broadcast' &gt; Encoder Settings (Sesuai Foto Anda)</span>
-              </div>
-              <h4 className="mt-2 text-sm font-bold text-white">
-                Cara Mengisi Kolom Encoder RadioBOSS
-              </h4>
-              <p className="mt-2 text-xs text-neutral-300 leading-relaxed">
-                Pada jendela <strong>Settings &gt; Connection</strong> yang sedang terbuka di layar Anda:
-              </p>
-              <ul className="mt-2 space-y-2 text-xs text-neutral-400">
-                <li>
-                  <strong className="text-neutral-200 block">• Kolom 'Server':</strong>
-                  Masukkan alamat server streaming audio Anda.
-                  <span className="text-[11px] text-amber-300 block mt-0.5">Format: host:port/mountpoint (Contoh: stream.zeno.fm:80/live atau 127.0.0.1:8000/live)</span>
-                  <span className="text-[10px] text-neutral-500 block">Atau klik tombol <strong>Configuration Wizard</strong> di sebelahnya untuk panduan otomatis.</span>
-                </li>
-                <li>
-                  <strong className="text-neutral-200 block">• Kolom 'Password':</strong>
-                  Masukkan password <em>Source / Broadcast</em> dari akun server radio streaming Anda.
-                </li>
-                <li>
-                  <strong className="text-neutral-200 block">• Audio Setting (Sudah Sempurna):</strong>
-                  Sample rate: <code className="text-neutral-200 font-mono">44100</code> · Encoder: <code className="text-neutral-200 font-mono">MP3</code> · Bitrate: <code className="text-neutral-200 font-mono">128</code> kbps · Channels: <code className="text-neutral-200 font-mono">stereo</code>.
-                </li>
-              </ul>
-              <div className="mt-3 text-[11px] text-neutral-300 bg-neutral-950 p-2.5 rounded-lg border border-neutral-800 space-y-1">
-                <span className="font-semibold text-amber-400 block">💡 Belum punya server streaming?</span>
-                <span>Daftar gratis di <strong>Zeno.fm</strong> atau <strong>Caster.fm</strong>. Anda langsung diberi Server, Port, Mount, Password, dan link audio untuk dipasang di aplikasi web ini!</span>
-              </div>
-            </div>
-          </div>
+        <div className="flex flex-col sm:flex-row gap-2">
+          <input
+            type="text"
+            readOnly
+            value={mobileShareUrl}
+            className="flex-1 rounded-2xl bg-neutral-950 border border-neutral-800 px-4 py-3 text-xs text-amber-300 font-mono select-all focus:outline-none"
+          />
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => handleCopy(mobileShareUrl, 'mobile_url')}
+              className="flex-1 sm:flex-initial flex items-center justify-center gap-1.5 rounded-2xl bg-amber-500 hover:bg-amber-400 px-4 py-3 text-xs font-bold text-neutral-950 transition-colors cursor-pointer"
+            >
+              {copiedLink === 'mobile_url' ? (
+                <>
+                  <Check className="h-4 w-4" />
+                  <span>Tersalin!</span>
+                </>
+              ) : (
+                <>
+                  <Copy className="h-4 w-4" />
+                  <span>Salin Link HP</span>
+                </>
+              )}
+            </button>
 
-          {/* Card 3: API & Web Remote Control */}
-          <div className="rounded-2xl border border-neutral-800 bg-neutral-900/90 p-5 backdrop-blur-xl shadow-xl flex flex-col justify-between">
-            <div>
-              <div className="flex items-center gap-2 text-amber-400 font-bold text-xs uppercase tracking-wider">
-                <span className="flex h-5 w-5 items-center justify-center rounded-full bg-amber-500/20 text-amber-400 text-xs">
-                  3
-                </span>
-                <span>Menu 'API' (Remote Control)</span>
-              </div>
-              <h4 className="mt-2 text-sm font-bold text-white">
-                Request Lagu & Kontrol Siaran
-              </h4>
-              <p className="mt-2 text-xs text-neutral-300 leading-relaxed">
-                Di daftar menu sebelah kiri screenshot Anda (di bawah <em>DTMF</em>), klik menu <strong>API</strong>.
-              </p>
-              <ul className="mt-2 space-y-1.5 text-xs text-neutral-400">
-                <li>• Centang <strong>Enable API</strong>.</li>
-                <li>• Port default: <code className="bg-neutral-800 text-amber-300 px-1 rounded font-mono">9000</code>.</li>
-                <li>• Buat Password API.</li>
-              </ul>
-              <p className="mt-3 text-[11px] text-neutral-400 bg-neutral-950 p-2.5 rounded-lg border border-neutral-800">
-                🎶 Dengan mengaktifkan API, request lagu dari pendengar di web akan langsung diselipkan ke playlist antrean RadioBOSS secara otomatis!
-              </p>
-            </div>
+            <a
+              href={mobileShareUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center justify-center gap-1.5 rounded-2xl bg-neutral-800 hover:bg-neutral-700 border border-neutral-700 px-3.5 py-3 text-xs font-semibold text-white transition-colors cursor-pointer"
+              title="Buka di tab baru"
+            >
+              <ExternalLink className="h-4 w-4" />
+              <span>Buka</span>
+            </a>
           </div>
         </div>
-      )}
+      </section>
+
+      {/* CARD 3: PENGATURAN RADIO & WHATSAPP OPERATOR */}
+      <section className="rounded-3xl border border-neutral-800 bg-neutral-900/90 p-5 sm:p-7 backdrop-blur-xl shadow-xl space-y-4">
+        <div className="flex items-center justify-between border-b border-neutral-800 pb-3">
+          <div className="flex items-center gap-2 text-white font-bold text-base">
+            <MessageCircle className="h-5 w-5 text-emerald-400" />
+            <span>Kontak WhatsApp Operator / Studio Radio</span>
+          </div>
+          <span className="text-[11px] text-neutral-500 hidden sm:inline">
+            Untuk menerima request lagu langsung
+          </span>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+          <div>
+            <label className="block font-semibold text-neutral-300 mb-1">
+              Nama Stasiun Radio
+            </label>
+            <input
+              type="text"
+              value={stationName}
+              onChange={(e) => setStationName(e.target.value)}
+              placeholder="Contoh: Eklesia Radio (Radio Kristiani)"
+              className="w-full rounded-2xl bg-neutral-950 border border-neutral-700 px-3.5 py-2.5 text-white focus:border-amber-500 focus:outline-none"
+            />
+          </div>
+
+          <div>
+            <label className="block font-semibold text-neutral-300 mb-1">
+              Nomor WhatsApp Operator / DJ (Menerima Request Lagu)
+            </label>
+            <input
+              type="text"
+              value={whatsappNumber}
+              onChange={(e) => setWhatsappNumber(e.target.value)}
+              placeholder="Contoh: 081234567890"
+              className="w-full rounded-2xl bg-neutral-950 border border-neutral-700 px-3.5 py-2.5 text-white font-mono focus:border-amber-500 focus:outline-none"
+            />
+            <p className="mt-1 text-[11px] text-neutral-500">
+              Saat pendengar request lagu, mereka bisa langsung klik tombol &quot;Kirim ke WhatsApp Operator&quot; sehingga lagu masuk ke chat Anda saat membuka RadioBOSS.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      {/* CARD 4: PANDUAN 3 LANGKAH RADIOBOSS KE ZENO FM */}
+      <section className="rounded-3xl border border-neutral-800 bg-neutral-900/90 p-5 sm:p-7 backdrop-blur-xl shadow-xl space-y-4">
+        <div className="flex items-center justify-between border-b border-neutral-800 pb-3">
+          <div className="flex items-center gap-2 text-white font-bold text-base">
+            <HelpCircle className="h-5 w-5 text-amber-400" />
+            <span>Panduan 3 Langkah Menghubungkan RadioBOSS ke Aplikasi Ini</span>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-3.5 text-xs">
+          <div className="rounded-2xl bg-neutral-950 p-4 border border-neutral-800 space-y-2">
+            <div className="flex items-center gap-2 text-amber-400 font-bold">
+              <span className="flex h-6 w-6 items-center justify-center rounded-full bg-amber-500/20 text-xs">1</span>
+              <span>Di RadioBOSS (Laptop)</span>
+            </div>
+            <p className="text-neutral-400 leading-relaxed text-[11px]">
+              Buka menu <strong>Settings</strong> &gt; <strong>Broadcast</strong>. Tambahkan encoder Icecast/Shoutcast dengan data dari Zeno FM (Server, Port, Mount, Password). Centang <em>Broadcasting enabled</em>.
+            </p>
+          </div>
+
+          <div className="rounded-2xl bg-neutral-950 p-4 border border-neutral-800 space-y-2">
+            <div className="flex items-center gap-2 text-amber-400 font-bold">
+              <span className="flex h-6 w-6 items-center justify-center rounded-full bg-amber-500/20 text-xs">2</span>
+              <span>Di Akun Zeno FM (Cloud)</span>
+            </div>
+            <p className="text-neutral-400 leading-relaxed text-[11px]">
+              Buka stasiun Anda di Zeno FM, lalu salin <strong>Stream URL</strong> (contoh: <code className="text-amber-300 font-mono">https://stream.zeno.fm/xxxx</code>) atau link stasiun Anda.
+            </p>
+          </div>
+
+          <div className="rounded-2xl bg-neutral-950 p-4 border border-neutral-800 space-y-2">
+            <div className="flex items-center gap-2 text-amber-400 font-bold">
+              <span className="flex h-6 w-6 items-center justify-center rounded-full bg-amber-500/20 text-xs">3</span>
+              <span>Di Aplikasi Ini</span>
+            </div>
+            <p className="text-neutral-400 leading-relaxed text-[11px]">
+              Tempelkan link dari Zeno FM pada kolom di atas, lalu klik <strong>Simpan Link</strong>. Aplikasi ini akan otomatis memutar siaran Anda di HP dan laptop tanpa server lokal!
+            </p>
+          </div>
+        </div>
+      </section>
     </div>
   );
 };

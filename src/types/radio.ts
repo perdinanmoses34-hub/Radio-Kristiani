@@ -88,4 +88,6 @@ export interface RadioBossConfig {
   streamUrl: string;
   stationName: string;
   autoSyncSeconds: number;
+  zenoStationUrl?: string;
+  whatsappNumber?: string;
 }

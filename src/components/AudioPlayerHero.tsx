@@ -10,18 +10,15 @@ import {
   Flame,
   Music,
   Sparkles,
-  Link as LinkIcon,
-  ExternalLink,
-  Check,
   Share2,
   Moon,
-  Copy,
   RadioTower,
   Smartphone,
+  Check,
 } from 'lucide-react';
 import { RadioBossStatus } from '../types/radio';
 import { AudioVisualizer } from './AudioVisualizer';
-import { sendChatReaction, parseZenoInput } from '../services/api';
+import { sendChatReaction, DEFAULT_ZENO_STREAM_URL, DEFAULT_ZENO_EMBED_URL } from '../services/api';
 import { stationHeroCover } from '../assets/images';
 
 interface AudioPlayerHeroProps {
@@ -38,18 +35,13 @@ export const AudioPlayerHero: React.FC<AudioPlayerHeroProps> = ({
   const [isPlaying, setIsPlaying] = useState<boolean>(false);
   const [volume, setVolume] = useState<number>(0.85);
   const [isMuted, setIsMuted] = useState<boolean>(false);
-  const [quality, setQuality] = useState<'64' | '128' | '320'>('128');
-  const [isLowLatency, setIsLowLatency] = useState<boolean>(true);
+  const [quality] = useState<'64' | '128' | '320'>('128');
+  const [isLowLatency] = useState<boolean>(true);
 
   // Player Mode: 'custom' (Studio HD player with visualizer) or 'zeno_embed' (Official Zeno FM live widget player)
   const [playerMode, setPlayerMode] = useState<'custom' | 'zeno_embed'>('custom');
 
-  // Zeno FM URL settings state
-  const [zenoUrlInput, setZenoUrlInput] = useState(() => {
-    return localStorage.getItem('zeno_station_url') || 'https://stream.zeno.fm/f3wvbbqmdg8uv';
-  });
-  const [showZenoModal, setShowZenoModal] = useState(false);
-  const [saveSuccess, setSaveSuccess] = useState(false);
+  // Share state
   const [copiedShare, setCopiedShare] = useState(false);
 
   // Sleep Timer state (minutes)
@@ -72,9 +64,6 @@ export const AudioPlayerHero: React.FC<AudioPlayerHeroProps> = ({
 
   const currentTrack = status?.currentTrack;
   const currentShow = status?.currentShow;
-
-  // Parse current Zeno URL
-  const parsedZeno = parseZenoInput(zenoUrlInput);
 
   // Format seconds to mm:ss
   const formatTime = (secs: number) => {
@@ -105,7 +94,7 @@ export const AudioPlayerHero: React.FC<AudioPlayerHeroProps> = ({
       audio.addEventListener('error', () => {
         setIsBuffering(false);
         setIsPlaying(false);
-        setAudioError('Stream audio sedang menghubungkan ke server Zeno FM...');
+        setAudioError('Menghubungkan ke siaran langsung radio... Ketuk tombol putar.');
       });
     }
 
@@ -166,7 +155,7 @@ export const AudioPlayerHero: React.FC<AudioPlayerHeroProps> = ({
       setAudioError(null);
       setIsBuffering(true);
 
-      const targetStream = parsedZeno.streamUrl;
+      const targetStream = DEFAULT_ZENO_STREAM_URL;
       const finalUrl = isLowLatency ? `${targetStream}?cb=${Date.now()}` : targetStream;
 
       if (audio.src !== finalUrl) {
@@ -182,43 +171,9 @@ export const AudioPlayerHero: React.FC<AudioPlayerHeroProps> = ({
         console.warn('Audio play failed:', err);
         setIsBuffering(false);
         setIsPlaying(false);
-        setAudioError('Ketuk tombol putar sekali lagi untuk mengaktifkan siaran Zeno FM di browser Anda.');
+        setAudioError('Ketuk tombol putar (Play) untuk mulai mendengarkan siaran langsung.');
       }
     }
-  };
-
-  const handleSaveZenoUrl = (e?: React.FormEvent) => {
-    if (e) e.preventDefault();
-    const cleanUrl = zenoUrlInput.trim();
-    localStorage.setItem('zeno_station_url', cleanUrl);
-
-    // Save to radio_config
-    try {
-      const existing = localStorage.getItem('radio_config');
-      const cfg = existing ? JSON.parse(existing) : {};
-      cfg.streamUrl = parsedZeno.streamUrl;
-      cfg.zenoStationUrl = cleanUrl;
-      localStorage.setItem('radio_config', JSON.stringify(cfg));
-    } catch {
-      // ignore
-    }
-
-    setSaveSuccess(true);
-    setTimeout(() => {
-      setSaveSuccess(false);
-      setShowZenoModal(false);
-    }, 1500);
-
-    // If audio is currently playing, reload new stream
-    if (isPlaying && audioRef.current) {
-      audioRef.current.pause();
-      const targetStream = parsedZeno.streamUrl;
-      audioRef.current.src = `${targetStream}?cb=${Date.now()}`;
-      audioRef.current.load();
-      audioRef.current.play().catch(() => {});
-    }
-
-    onRefreshStatus();
   };
 
   const handleReaction = async (type: 'heart' | 'fire' | 'clap' | 'music') => {
@@ -235,11 +190,10 @@ export const AudioPlayerHero: React.FC<AudioPlayerHeroProps> = ({
 
   const handleShare = async () => {
     const currentOrigin = typeof window !== 'undefined' ? window.location.origin + window.location.pathname : '';
-    const shareUrl = `${currentOrigin}?stream=${encodeURIComponent(parsedZeno.streamUrl)}`;
     const shareData = {
       title: 'Dengarkan Eklesia Radio - Streaming Online',
-      text: 'Mari dengarkan siaran lagu rohani & renungan di Eklesia Radio!',
-      url: shareUrl,
+      text: 'Mari dengarkan siaran lagu rohani & firman Tuhan di Eklesia Radio!',
+      url: currentOrigin,
     };
 
     if (navigator.share) {
@@ -252,7 +206,7 @@ export const AudioPlayerHero: React.FC<AudioPlayerHeroProps> = ({
     }
 
     if (navigator.clipboard) {
-      navigator.clipboard.writeText(shareUrl);
+      navigator.clipboard.writeText(currentOrigin);
       setCopiedShare(true);
       setTimeout(() => setCopiedShare(false), 2000);
     }
@@ -264,43 +218,20 @@ export const AudioPlayerHero: React.FC<AudioPlayerHeroProps> = ({
       <div className="pointer-events-none absolute -top-24 -left-24 h-64 w-64 rounded-full bg-amber-500/10 blur-3xl" />
       <div className="pointer-events-none absolute -bottom-24 -right-24 h-64 w-64 rounded-full bg-orange-600/10 blur-3xl" />
 
-      {/* QUICK ZENO FM STREAM BAR (Prominent on top) */}
-      <div className="relative z-10 mb-4 rounded-2xl bg-neutral-950 p-2.5 sm:p-3 border border-amber-500/30 flex flex-wrap items-center justify-between gap-2.5">
+      {/* Top Banner: Status & Server Information */}
+      <div className="relative z-10 flex flex-wrap items-center justify-between gap-3 border-b border-neutral-800/80 pb-3">
         <div className="flex items-center gap-2 min-w-0">
           <span className="flex h-2.5 w-2.5 relative shrink-0">
             <span className={`absolute inline-flex h-full w-full rounded-full opacity-75 ${isPlaying ? 'animate-ping bg-emerald-400' : 'bg-neutral-500'}`} />
             <span className={`relative inline-flex h-2.5 w-2.5 rounded-full ${isPlaying ? 'bg-emerald-500' : 'bg-neutral-500'}`} />
           </span>
-          <span className="text-[11px] font-bold text-amber-400 uppercase tracking-wider shrink-0">
-            Zeno FM Live
-          </span>
-          <span className="text-neutral-600 hidden sm:inline">·</span>
-          <span className="text-[11px] font-mono text-neutral-300 truncate max-w-[160px] sm:max-w-xs md:max-w-md">
-            {parsedZeno.streamUrl}
-          </span>
-        </div>
-
-        <div className="flex items-center gap-1.5 shrink-0">
-          <button
-            onClick={() => setShowZenoModal(true)}
-            className="flex items-center gap-1 rounded-xl bg-amber-500 hover:bg-amber-400 text-neutral-950 font-bold px-3 py-1.5 text-xs transition-all cursor-pointer shadow-sm active:scale-95"
-            title="Ganti / Tempel Link Zeno FM"
-          >
-            <LinkIcon className="h-3.5 w-3.5" />
-            <span>Tempel Link Zeno</span>
-          </button>
-        </div>
-      </div>
-
-      {/* Top Banner: Mode Selector & Status */}
-      <div className="relative z-10 flex flex-wrap items-center justify-between gap-3 border-b border-neutral-800/80 pb-3">
-        <div className="flex items-center gap-2 min-w-0">
           <span className="text-[11px] sm:text-xs font-bold tracking-wider text-neutral-200 uppercase truncate">
-            {isPlaying ? 'ON AIR MENGUDARA' : 'STREAM AKTIF'}
+            {isPlaying ? 'ON AIR MENGUDARA' : 'SIARAN LANGSUNG TERHUBUNG'}
           </span>
           <span className="text-neutral-600">·</span>
-          <span className="text-[11px] font-semibold text-neutral-400 truncate">
-            Server: RadioBOSS &amp; Zeno FM
+          <span className="text-[11px] font-semibold text-neutral-400 truncate flex items-center gap-1">
+            <RadioTower className="h-3 w-3 text-amber-400 shrink-0" />
+            <span>Server Otomatis Aktif</span>
           </span>
         </div>
 
@@ -331,7 +262,7 @@ export const AudioPlayerHero: React.FC<AudioPlayerHeroProps> = ({
                   : 'text-neutral-400 hover:text-white'
               }`}
             >
-              Widget Resmi Zeno
+              Widget Siaran
             </button>
           </div>
 
@@ -356,102 +287,13 @@ export const AudioPlayerHero: React.FC<AudioPlayerHeroProps> = ({
         </div>
       </div>
 
-      {/* POPUP MODAL: TEMPEL LINK ZENO FM */}
-      {showZenoModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-neutral-950/80 backdrop-blur-md">
-          <div className="relative w-full max-w-lg overflow-hidden rounded-3xl border border-amber-500/40 bg-neutral-900 p-6 shadow-2xl space-y-4">
-            <div className="flex items-center justify-between border-b border-neutral-800 pb-3">
-              <div className="flex items-center gap-2">
-                <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-amber-500/20 text-amber-400">
-                  <LinkIcon className="h-5 w-5" />
-                </div>
-                <div>
-                  <h3 className="text-base font-bold text-white">Tempelkan Link Siaran Zeno FM</h3>
-                  <p className="text-xs text-neutral-400">Hubungkan server RadioBOSS Anda via Zeno FM</p>
-                </div>
-              </div>
-              <button
-                onClick={() => setShowZenoModal(false)}
-                className="rounded-xl p-1.5 text-neutral-400 hover:text-white hover:bg-neutral-800 transition-colors cursor-pointer"
-              >
-                ✕
-              </button>
-            </div>
-
-            <form onSubmit={handleSaveZenoUrl} className="space-y-3.5 text-xs">
-              <div>
-                <label className="block font-semibold text-neutral-300 mb-1.5">
-                  URL Stream atau Link Stasiun Zeno FM:
-                </label>
-                <input
-                  type="text"
-                  value={zenoUrlInput}
-                  onChange={(e) => setZenoUrlInput(e.target.value)}
-                  placeholder="https://stream.zeno.fm/f3wvbbqmdg8uv atau https://zeno.fm/radio/..."
-                  required
-                  className="w-full rounded-2xl bg-neutral-950 border border-neutral-700 px-3.5 py-3 font-mono text-white text-xs focus:border-amber-500 focus:outline-none"
-                />
-              </div>
-
-              {/* Parsed Preview */}
-              <div className="rounded-2xl bg-neutral-950 p-3.5 border border-neutral-800 text-[11px] space-y-1.5">
-                <div className="flex items-center justify-between text-neutral-400">
-                  <span>URL Audio Siaran yang Diputar:</span>
-                  <span className="text-amber-400 font-bold">{parsedZeno.type.toUpperCase()}</span>
-                </div>
-                <div className="font-mono text-amber-300 truncate">
-                  {parsedZeno.streamUrl}
-                </div>
-              </div>
-
-              {/* Quick Preset Buttons */}
-              <div>
-                <span className="text-[10px] text-neutral-400 block mb-1">Coba Contoh Link:</span>
-                <div className="flex flex-wrap gap-1.5">
-                  <button
-                    type="button"
-                    onClick={() => setZenoUrlInput('https://stream.zeno.fm/f3wvbbqmdg8uv')}
-                    className="rounded-lg bg-neutral-950 border border-neutral-800 hover:bg-neutral-800 px-2.5 py-1 text-[11px] text-neutral-300 transition-colors cursor-pointer"
-                  >
-                    Stream Eklesia Radio
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setZenoUrlInput('https://zeno.fm/radio/eklesia-radio')}
-                    className="rounded-lg bg-neutral-950 border border-neutral-800 hover:bg-neutral-800 px-2.5 py-1 text-[11px] text-neutral-300 transition-colors cursor-pointer"
-                  >
-                    Halaman Web Zeno
-                  </button>
-                </div>
-              </div>
-
-              <div className="pt-2 flex items-center justify-end gap-2">
-                <button
-                  type="button"
-                  onClick={() => setShowZenoModal(false)}
-                  className="rounded-xl px-4 py-2.5 font-semibold text-neutral-400 hover:text-white transition-colors cursor-pointer"
-                >
-                  Batal
-                </button>
-                <button
-                  type="submit"
-                  className="rounded-xl bg-amber-500 hover:bg-amber-400 px-5 py-2.5 font-bold text-neutral-950 transition-colors shadow-md shadow-amber-500/20 cursor-pointer"
-                >
-                  {saveSuccess ? 'Tersimpan!' : 'Simpan & Putar'}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
-
-      {/* MODE 1: OFFICIAL ZENO.FM LIVE EMBED WIDGET PLAYER */}
+      {/* MODE 1: OFFICIAL LIVE EMBED WIDGET PLAYER */}
       {playerMode === 'zeno_embed' ? (
         <div className="relative z-10 mt-4 space-y-3">
           <div className="rounded-2xl overflow-hidden border border-amber-500/30 bg-neutral-950 shadow-xl p-1">
             <iframe
-              src={parsedZeno.embedUrl}
-              title="Eklesia Radio Zeno FM Live Player"
+              src={DEFAULT_ZENO_EMBED_URL}
+              title="Eklesia Radio Live Player"
               width="100%"
               height="220"
               frameBorder="0"
@@ -464,17 +306,9 @@ export const AudioPlayerHero: React.FC<AudioPlayerHeroProps> = ({
           <div className="flex items-center justify-between text-xs text-neutral-400 px-1">
             <div className="flex items-center gap-1.5 text-neutral-300">
               <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
-              <span>Widget resmi Zeno FM aktif (Memutar siaran RadioBOSS Anda)</span>
+              <span>Widget Siaran Langsung Terkoneksi ke Server RadioBOSS & Zeno</span>
             </div>
-            <a
-              href={zenoUrlInput}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-amber-400 hover:underline flex items-center gap-1 text-[11px]"
-            >
-              <span>Buka di Zeno.FM</span>
-              <ExternalLink className="h-3 w-3" />
-            </a>
+            <span className="text-amber-400/90 text-[11px]">24 Jam Non-Stop</span>
           </div>
         </div>
       ) : (
@@ -539,7 +373,7 @@ export const AudioPlayerHero: React.FC<AudioPlayerHeroProps> = ({
                 {currentTrack?.title || 'Eklesia Radio Live Broadcast'}
               </h1>
               <p className="mt-0.5 text-sm sm:text-base font-semibold text-neutral-300 truncate">
-                {currentTrack?.artist || 'RadioBOSS Playout & Zeno FM'}
+                {currentTrack?.artist || 'Lagu Pujian Rohani & Firman'}
               </p>
 
               {/* Metadata tags */}
@@ -560,7 +394,7 @@ export const AudioPlayerHero: React.FC<AudioPlayerHeroProps> = ({
               </div>
               <div className="mt-1 flex items-center justify-between text-[11px] font-mono tabular-nums text-neutral-400">
                 <span>{formatTime(currentTrack?.pos || 0)}</span>
-                <span className="text-neutral-500 text-[10px]">Live Audio Timeline</span>
+                <span className="text-neutral-500 text-[10px]">Live Audio Broadcast</span>
                 <span>{formatTime(currentTrack?.duration || 240)}</span>
               </div>
             </div>
@@ -680,7 +514,7 @@ export const AudioPlayerHero: React.FC<AudioPlayerHeroProps> = ({
               <div className="flex items-center gap-1.5 text-xs text-neutral-400 min-w-0">
                 <span className="font-semibold text-neutral-300 shrink-0">Berikutnya:</span>
                 <span className="text-white font-medium truncate">
-                  {status?.nextTrack?.title || 'Lagu Pujian RadioBOSS'}
+                  {status?.nextTrack?.title || 'Lagu Rohani Pilihan'}
                 </span>
               </div>
 

@@ -1,9 +1,9 @@
 import React from 'react';
-import { Radio, Music, RadioTower } from 'lucide-react';
+import { Music, RadioTower } from 'lucide-react';
 
 interface TopNavbarProps {
-  activeTab: 'player' | 'chat' | 'schedule' | 'history' | 'bridge';
-  onSelectTab: (tab: 'player' | 'chat' | 'schedule' | 'history' | 'bridge') => void;
+  activeTab: 'player' | 'chat' | 'schedule' | 'history';
+  onSelectTab: (tab: 'player' | 'chat' | 'schedule' | 'history') => void;
   onRequestClick: () => void;
   stationName?: string;
 }
@@ -12,7 +12,7 @@ export const TopNavbar: React.FC<TopNavbarProps> = ({
   activeTab,
   onSelectTab,
   onRequestClick,
-  stationName = 'Radio Kristiani 98.4 FM',
+  stationName = 'Eklesia Radio',
 }) => {
   return (
     <header className="sticky top-0 z-40 w-full max-w-full overflow-hidden border-b border-neutral-800/90 bg-neutral-950/90 backdrop-blur-xl">
@@ -30,7 +30,7 @@ export const TopNavbar: React.FC<TopNavbarProps> = ({
               {stationName}
             </span>
             <span className="hidden sm:block text-[10px] text-neutral-400 font-medium">
-              Live Streaming & RadioBOSS Engine
+              Live Streaming & RadioBOSS Playout
             </span>
           </div>
         </button>
@@ -48,14 +48,14 @@ export const TopNavbar: React.FC<TopNavbarProps> = ({
             Siaran Langsung
           </button>
           <button
-            onClick={() => onSelectTab('schedule')}
+            onClick={() => onSelectTab('chat')}
             className={`whitespace-nowrap shrink-0 transition-colors cursor-pointer ${
-              activeTab === 'schedule'
+              activeTab === 'chat'
                 ? 'text-amber-400 font-semibold'
                 : 'text-neutral-400 hover:text-white'
             }`}
           >
-            Jadwal Acara
+            Obrolan & Komunitas
           </button>
           <button
             onClick={() => onSelectTab('history')}
@@ -68,14 +68,14 @@ export const TopNavbar: React.FC<TopNavbarProps> = ({
             Daftar Lagu & Antrean
           </button>
           <button
-            onClick={() => onSelectTab('bridge')}
+            onClick={() => onSelectTab('schedule')}
             className={`whitespace-nowrap shrink-0 transition-colors cursor-pointer ${
-              activeTab === 'bridge'
+              activeTab === 'schedule'
                 ? 'text-amber-400 font-semibold'
                 : 'text-neutral-400 hover:text-white'
             }`}
           >
-            Link Zeno FM
+            Jadwal Acara
           </button>
         </nav>
 

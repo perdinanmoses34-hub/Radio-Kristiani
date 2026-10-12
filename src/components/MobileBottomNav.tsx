@@ -1,9 +1,9 @@
 import React from 'react';
-import { Radio, MessageSquare, ListMusic, Calendar, Link2 } from 'lucide-react';
+import { Radio, MessageSquare, ListMusic, Calendar } from 'lucide-react';
 
 interface MobileBottomNavProps {
-  activeTab: 'player' | 'chat' | 'schedule' | 'history' | 'bridge';
-  onSelectTab: (tab: 'player' | 'chat' | 'schedule' | 'history' | 'bridge') => void;
+  activeTab: 'player' | 'chat' | 'schedule' | 'history';
+  onSelectTab: (tab: 'player' | 'chat' | 'schedule' | 'history') => void;
   unreadCount?: number;
 }
 
@@ -17,7 +17,6 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
     { id: 'chat' as const, label: 'Obrolan', icon: MessageSquare, badge: unreadCount },
     { id: 'history' as const, label: 'Lagu', icon: ListMusic },
     { id: 'schedule' as const, label: 'Jadwal', icon: Calendar },
-    { id: 'bridge' as const, label: 'Link Zeno', icon: Link2 },
   ];
 
   return (
@@ -26,7 +25,7 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
       style={{ paddingBottom: 'max(env(safe-area-inset-bottom, 8px), 8px)' }}
       aria-label="Navigasi Utama Mobile"
     >
-      <div className="grid grid-cols-5 items-center justify-around">
+      <div className="grid grid-cols-4 items-center justify-around">
         {tabs.map((tab) => {
           const Icon = tab.icon;
           const isActive = activeTab === tab.id;

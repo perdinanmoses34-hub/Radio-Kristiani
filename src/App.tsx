@@ -5,20 +5,18 @@ import { AudioPlayerHero } from './components/AudioPlayerHero';
 import { LiveChat } from './components/LiveChat';
 import { SongHistoryList } from './components/SongHistoryList';
 import { ScheduleGuide } from './components/ScheduleGuide';
-import { RadioBossBridge } from './components/RadioBossBridge';
 import { SongRequestModal } from './components/SongRequestModal';
 import { RadioBossStatus } from './types/radio';
 import { fetchRadioStatus } from './services/api';
 import {
   Calendar,
   Music,
-  Link2,
-  MessageSquare,
   Radio,
+  RadioTower,
 } from 'lucide-react';
 
 export default function App() {
-  const [activeTab, setActiveTab] = useState<'player' | 'chat' | 'schedule' | 'history' | 'bridge'>('player');
+  const [activeTab, setActiveTab] = useState<'player' | 'chat' | 'schedule' | 'history'>('player');
   const [status, setStatus] = useState<RadioBossStatus | null>(null);
   const [isRequestModalOpen, setIsRequestModalOpen] = useState(false);
   const [prefillRequest, setPrefillRequest] = useState<{ artist: string; title: string }>({
@@ -49,7 +47,7 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-neutral-950 text-neutral-100 flex flex-col font-sans selection:bg-amber-500/20 selection:text-amber-300 w-full max-w-full overflow-x-hidden relative">
-      {/* 3-Zone Clean Top Navigation Bar */}
+      {/* Clean Top Navigation Bar */}
       <TopNavbar
         activeTab={activeTab}
         onSelectTab={setActiveTab}
@@ -58,22 +56,21 @@ export default function App() {
       />
 
       {/* Main Content Area - with mobile bottom nav safe padding (pb-24) */}
-      <main className="flex-1 mx-auto w-full max-w-7xl px-3 py-3.5 sm:px-6 lg:py-7 pb-24 md:pb-8 overflow-x-hidden min-w-0">
-        {/* TAB 1: PLAYER (SIARAN) */}
+      <main className="mx-auto w-full max-w-7xl flex-1 px-3 sm:px-6 py-3 sm:py-6 pb-24 md:pb-8">
+        {/* TAB 1: PLAYER (STUDIO UTAMA & PEMUTAR) */}
         {activeTab === 'player' && (
-          <div className="space-y-6 w-full max-w-full overflow-hidden">
-            {/* Desktop 2-column or Mobile focused deck */}
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 sm:gap-6 items-start">
-              {/* Main Audio Player Deck */}
-              <div className="lg:col-span-8 w-full max-w-full min-w-0">
+          <div className="space-y-5">
+            {/* Split layout on desktop: Player Left + Live Chat Right */}
+            <div className="grid grid-cols-1 gap-5 lg:grid-cols-12 items-start">
+              <div className="lg:col-span-8 space-y-4">
                 <AudioPlayerHero
                   status={status}
                   onRequestClick={() => handleOpenRequestModal()}
                   onRefreshStatus={loadStatus}
                 />
 
-                {/* Quick Info Cards Row */}
-                <div className="mt-5 grid grid-cols-1 sm:grid-cols-3 gap-3">
+                {/* 3 Quick Preview Cards Below Player */}
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                   {/* Current Program Card */}
                   <div
                     onClick={() => setActiveTab('schedule')}
@@ -82,9 +79,9 @@ export default function App() {
                     <div className="flex items-center justify-between text-xs text-neutral-400">
                       <span className="font-semibold text-neutral-300 flex items-center gap-1.5">
                         <Calendar className="h-3.5 w-3.5 text-amber-400 shrink-0" />
-                        <span>Jadwal Acara</span>
+                        <span>Acara Siaran</span>
                       </span>
-                      <span className="text-amber-400 font-mono text-[11px] group-hover:underline">Lihat →</span>
+                      <span className="text-amber-400 font-mono text-[11px] group-hover:underline">Jadwal →</span>
                     </div>
                     <div className="mt-1.5">
                       <h3 className="text-sm font-bold text-white truncate">
@@ -118,27 +115,24 @@ export default function App() {
                     </div>
                   </div>
 
-                  {/* Zeno FM Link Status Card */}
-                  <div
-                    onClick={() => setActiveTab('bridge')}
-                    className="group rounded-2xl border border-neutral-800/80 bg-neutral-900/60 p-3.5 hover:border-neutral-700 transition-all cursor-pointer select-none"
-                  >
+                  {/* Radio Server Status Card */}
+                  <div className="rounded-2xl border border-neutral-800/80 bg-neutral-900/60 p-3.5 select-none">
                     <div className="flex items-center justify-between text-xs text-neutral-400">
                       <span className="font-semibold text-neutral-300 flex items-center gap-1.5">
-                        <Link2 className="h-3.5 w-3.5 text-amber-400 shrink-0" />
-                        <span>Link Zeno FM</span>
+                        <RadioTower className="h-3.5 w-3.5 text-emerald-400 shrink-0" />
+                        <span>Status Server</span>
                       </span>
-                      <span className="text-amber-400 font-mono text-[11px] group-hover:underline">Atur →</span>
+                      <span className="text-emerald-400 font-mono text-[11px]">Terhubung</span>
                     </div>
                     <div className="mt-1.5">
                       <div className="flex items-center gap-1.5">
                         <span className="h-2 w-2 rounded-full bg-emerald-400 shrink-0 animate-pulse" />
                         <h3 className="text-sm font-bold text-white truncate">
-                          Siaran Online Zeno
+                          RadioBOSS &amp; Zeno FM
                         </h3>
                       </div>
                       <p className="text-xs text-neutral-400 truncate mt-0.5">
-                        Tempel link dari Zeno &amp; RadioBOSS
+                        Streaming online aktif 24 jam
                       </p>
                     </div>
                   </div>
@@ -182,13 +176,6 @@ export default function App() {
             />
           </div>
         )}
-
-        {/* TAB 5: BRIDGE (PENGATURAN RADIOBOSS) */}
-        {activeTab === 'bridge' && (
-          <div className="w-full max-w-full overflow-hidden">
-            <RadioBossBridge />
-          </div>
-        )}
       </main>
 
       {/* Android Mobile Bottom Navigation Bar (Visible only on phone/tablet < md) */}
@@ -210,15 +197,15 @@ export default function App() {
         <div className="mx-auto max-w-7xl px-4 sm:px-6 flex flex-col sm:flex-row items-center justify-between gap-3">
           <div className="flex items-center gap-2">
             <Radio className="h-4 w-4 text-amber-500 shrink-0" />
-            <span className="font-semibold text-neutral-300">{status?.stationName || 'Radio Kristiani 98.4 FM'}</span>
+            <span className="font-semibold text-neutral-300">{status?.stationName || 'Eklesia Radio'}</span>
             <span>·</span>
-            <span>Streaming Online & Otomatisasi RadioBOSS</span>
+            <span>Streaming Online &amp; Otomatisasi RadioBOSS</span>
           </div>
 
           <div className="flex items-center gap-4 text-neutral-400">
             <span>Audio Latensi Rendah</span>
             <span>·</span>
-            <span>RadioBOSS Remote Engine</span>
+            <span>Radio Server Connected</span>
             <span>·</span>
             <span>24 Jam Non-Stop</span>
           </div>

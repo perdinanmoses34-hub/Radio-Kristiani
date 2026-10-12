@@ -8,6 +8,11 @@ import {
 } from '../types/radio';
 import { stationHeroCover } from '../assets/images';
 
+// Default Official Zeno FM stream connected to RadioBOSS
+export const DEFAULT_ZENO_STREAM_URL = 'https://stream.zeno.fm/f3wvbbqmdg8uv';
+export const DEFAULT_ZENO_STATION_URL = 'https://zeno.fm/radio/eklesia-radio';
+export const DEFAULT_ZENO_EMBED_URL = 'https://zeno.fm/player/eklesia-radio';
+
 // Flag to track whether Express backend is responding
 let backendAvailable: boolean | null = null;
 
@@ -114,16 +119,16 @@ const DEFAULT_SCHEDULE: RadioShow[] = [
 ];
 
 // Helper to normalize any pasted Zeno FM URL into a playable stream URL and embed URL
-export function parseZenoInput(input: string): {
+export function parseZenoInput(input?: string): {
   streamUrl: string;
   embedUrl: string;
   slug: string;
   type: 'stream' | 'station' | 'embed' | 'key';
 } {
-  const clean = input.trim();
+  const clean = (input || DEFAULT_ZENO_STREAM_URL).trim();
   let slug = 'eklesia-radio';
-  let streamUrl = 'https://stream.zeno.fm/f3wvbbqmdg8uv';
-  let embedUrl = 'https://zeno.fm/player/eklesia-radio';
+  let streamUrl = DEFAULT_ZENO_STREAM_URL;
+  let embedUrl = DEFAULT_ZENO_EMBED_URL;
   let type: 'stream' | 'station' | 'embed' | 'key' = 'stream';
 
   if (!clean) {

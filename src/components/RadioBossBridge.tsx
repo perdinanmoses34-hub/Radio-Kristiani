@@ -670,29 +670,41 @@ export const RadioBossBridge: React.FC = () => {
             </div>
           </div>
 
-          {/* Card 2: Audio Streaming Setup */}
+          {/* Card 2: Audio Streaming Setup & Encoder Dialog */}
           <div className="rounded-2xl border border-neutral-800 bg-neutral-900/90 p-5 backdrop-blur-xl shadow-xl flex flex-col justify-between">
             <div>
               <div className="flex items-center gap-2 text-amber-400 font-bold text-xs uppercase tracking-wider">
                 <span className="flex h-5 w-5 items-center justify-center rounded-full bg-amber-500/20 text-amber-400 text-xs">
                   2
                 </span>
-                <span>Menu 'Broadcast' (Encoder Audio)</span>
+                <span>Menu 'Broadcast' &gt; Encoder Settings (Sesuai Foto Anda)</span>
               </div>
               <h4 className="mt-2 text-sm font-bold text-white">
-                Streaming Suara ke Pendengar
+                Cara Mengisi Kolom Encoder RadioBOSS
               </h4>
               <p className="mt-2 text-xs text-neutral-300 leading-relaxed">
-                Di panel kiri RadioBOSS tepat di atas <em>Metadata</em>, klik menu <strong>Broadcast</strong>.
+                Pada jendela <strong>Settings &gt; Connection</strong> yang sedang terbuka di layar Anda:
               </p>
-              <ul className="mt-2 space-y-1.5 text-xs text-neutral-400">
-                <li>• Tambahkan encoder Icecast atau Shoutcast baru.</li>
-                <li>• Format audio direkomendasikan: <strong>MP3 128kbps</strong> atau <strong>AAC+ 64kbps</strong>.</li>
-                <li>• Salin link output streaming dan tempelkan pada tab <strong>Pengaturan Server API</strong> di aplikasi ini.</li>
+              <ul className="mt-2 space-y-2 text-xs text-neutral-400">
+                <li>
+                  <strong className="text-neutral-200 block">• Kolom 'Server':</strong>
+                  Masukkan alamat server streaming audio Anda.
+                  <span className="text-[11px] text-amber-300 block mt-0.5">Format: host:port/mountpoint (Contoh: stream.zeno.fm:80/live atau 127.0.0.1:8000/live)</span>
+                  <span className="text-[10px] text-neutral-500 block">Atau klik tombol <strong>Configuration Wizard</strong> di sebelahnya untuk panduan otomatis.</span>
+                </li>
+                <li>
+                  <strong className="text-neutral-200 block">• Kolom 'Password':</strong>
+                  Masukkan password <em>Source / Broadcast</em> dari akun server radio streaming Anda.
+                </li>
+                <li>
+                  <strong className="text-neutral-200 block">• Audio Setting (Sudah Sempurna):</strong>
+                  Sample rate: <code className="text-neutral-200 font-mono">44100</code> · Encoder: <code className="text-neutral-200 font-mono">MP3</code> · Bitrate: <code className="text-neutral-200 font-mono">128</code> kbps · Channels: <code className="text-neutral-200 font-mono">stereo</code>.
+                </li>
               </ul>
-              <p className="mt-3 text-[11px] text-neutral-400 bg-neutral-950 p-2.5 rounded-lg border border-neutral-800">
-                🔊 Setelah URL diisi, tombol Play di aplikasi web akan memutar langsung siaran musik Anda!
-              </p>
+              <div className="mt-3 text-[11px] text-neutral-300 bg-neutral-950 p-2.5 rounded-lg border border-neutral-800 space-y-1">
+                <span className="font-semibold text-amber-400 block">💡 Belum punya server streaming?</span>
+                <span>Daftar gratis di <strong>Zeno.fm</strong> atau <strong>Caster.fm</strong>. Anda langsung diberi Server, Port, Mount, Password, dan link audio untuk dipasang di aplikasi web ini!</span>
+              </div>
             </div>
           </div>
 

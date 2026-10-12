@@ -1,24 +1,33 @@
 import React, { useState, useEffect } from 'react';
-import { Calendar, Clock, Radio, User, Sparkles, CheckCircle2 } from 'lucide-react';
+import { Calendar, Clock, Radio, User, Sparkles, CheckCircle2, Sliders } from 'lucide-react';
 import { RadioShow } from '../types/radio';
 import { fetchSchedule } from '../services/api';
 import { studioMicBroadcast } from '../assets/images';
 
-export const ScheduleGuide: React.FC = () => {
+interface ScheduleGuideProps {
+  onOpenAdminSchedule?: () => void;
+  isAdminLoggedIn?: boolean;
+}
+
+export const ScheduleGuide: React.FC<ScheduleGuideProps> = ({
+  onOpenAdminSchedule,
+  isAdminLoggedIn = false,
+}) => {
   const [schedule, setSchedule] = useState<RadioShow[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
+  const loadSchedule = async () => {
+    try {
+      const data = await fetchSchedule();
+      setSchedule(data || []);
+    } catch (err) {
+      console.error('Failed to load schedule:', err);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   useEffect(() => {
-    const loadSchedule = async () => {
-      try {
-        const data = await fetchSchedule();
-        setSchedule(data || []);
-      } catch (err) {
-        console.error('Failed to load schedule:', err);
-      } finally {
-        setIsLoading(false);
-      }
-    };
     loadSchedule();
   }, []);
 
@@ -34,17 +43,29 @@ export const ScheduleGuide: React.FC = () => {
             referrerPolicy="no-referrer"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-neutral-950 via-neutral-950/60 to-transparent" />
-          <div className="absolute bottom-5 left-5 right-5 sm:bottom-6 sm:left-8">
-            <div className="flex items-center gap-2 text-xs font-semibold text-amber-400">
-              <Calendar className="h-4 w-4" />
-              <span>Jadwal Siaran Harian RadioBOSS</span>
+          <div className="absolute bottom-5 left-5 right-5 sm:bottom-6 sm:left-8 flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+            <div>
+              <div className="flex items-center gap-2 text-xs font-semibold text-amber-400">
+                <Calendar className="h-4 w-4" />
+                <span>Jadwal Siaran Harian RadioBOSS</span>
+              </div>
+              <h2 className="mt-1 text-2xl sm:text-3xl font-extrabold tracking-tight text-white">
+                Program Acara &amp; On-Air Host
+              </h2>
+              <p className="mt-1 text-xs sm:text-sm text-neutral-300 max-w-2xl">
+                Susunan program siaran 24 jam non-stop yang dikelola langsung melalui scheduler otomatis RadioBOSS.
+              </p>
             </div>
-            <h2 className="mt-1 text-2xl sm:text-3xl font-extrabold tracking-tight text-white">
-              Program Acara & On-Air Host
-            </h2>
-            <p className="mt-1 text-xs sm:text-sm text-neutral-300 max-w-2xl">
-              Susunan program siaran 24 jam non-stop yang dikelola langsung melalui scheduler otomatis RadioBOSS.
-            </p>
+
+            {onOpenAdminSchedule && (
+              <button
+                onClick={onOpenAdminSchedule}
+                className="flex items-center gap-1.5 self-start sm:self-end px-3.5 py-2 rounded-xl bg-neutral-900/90 hover:bg-neutral-800 border border-amber-500/40 text-amber-300 text-xs font-bold transition-all shadow-md active:scale-95 cursor-pointer shrink-0"
+              >
+                <Sliders className="h-3.5 w-3.5 text-amber-400" />
+                <span>{isAdminLoggedIn ? 'Atur Jadwal (Admin)' : 'Atur Jadwal (Login Admin)'}</span>
+              </button>
+            )}
           </div>
         </div>
       </div>

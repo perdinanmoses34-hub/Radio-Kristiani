@@ -43,145 +43,136 @@ let webhookLogs: Array<{
   method: string;
 }> = [];
 
-// Rich simulated catalog for automated RadioBOSS schedule and rotation
-const SIMULATED_TRACKS = [
+// Rich Christian & Inspirational song catalog for automated RadioBOSS schedule and rotation
+let SIMULATED_TRACKS = [
   {
-    artist: 'Tulus',
-    title: 'Hati-Hati di Jalan',
-    album: 'Manusia',
-    year: '2022',
-    duration: 242,
-    genre: 'Pop / Acoustic',
-    bpm: 110,
+    artist: 'NDC Worship',
+    title: 'Waktu Tuhan',
+    album: 'Purify',
+    year: '2020',
+    duration: 310,
+    genre: 'Praise & Worship',
+    bpm: 72,
     albumArt: 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&w=400&q=80',
   },
   {
-    artist: 'Coldplay',
-    title: 'Viva La Vida',
-    album: 'Viva La Vida or Death and All His Friends',
-    year: '2008',
-    duration: 242,
-    genre: 'Alternative Rock',
-    bpm: 138,
+    artist: 'JPCC Worship',
+    title: 'Sampai Akhir Hidupku',
+    album: 'Made Free',
+    year: '2017',
+    duration: 334,
+    genre: 'Worship Ballad',
+    bpm: 68,
     albumArt: 'https://images.unsplash.com/photo-1470225620780-dba8ba36b745?auto=format&fit=crop&w=400&q=80',
   },
   {
-    artist: 'Mahalini',
-    title: 'Sial',
-    album: 'Fábulas',
-    year: '2023',
-    duration: 243,
-    genre: 'Pop Ballad',
-    bpm: 115,
+    artist: 'Symphony Worship',
+    title: 'Ku Ada Sebab Anugerah-Mu',
+    album: 'Kemenanganku',
+    year: '2021',
+    duration: 342,
+    genre: 'Praise & Worship',
+    bpm: 76,
     albumArt: 'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?auto=format&fit=crop&w=400&q=80',
   },
   {
-    artist: 'The Weeknd',
-    title: 'Blinding Lights',
-    album: 'After Hours',
-    year: '2020',
-    duration: 200,
-    genre: 'Synthwave / Pop',
-    bpm: 171,
+    artist: 'Sari Simorangkir',
+    title: 'Kaulah Harapan',
+    album: 'Satu Alasan',
+    year: '2005',
+    duration: 295,
+    genre: 'Inspirational Worship',
+    bpm: 74,
     albumArt: 'https://images.unsplash.com/photo-1501386761578-eac5c94b800a?auto=format&fit=crop&w=400&q=80',
   },
   {
-    artist: 'Sheila on 7',
-    title: 'Dan...',
-    album: 'Sheila on 7',
-    year: '1999',
-    duration: 285,
-    genre: 'Indonesian Rock',
-    bpm: 98,
+    artist: 'Hillsong Worship',
+    title: 'What A Beautiful Name',
+    album: 'Let There Be Light',
+    year: '2016',
+    duration: 341,
+    genre: 'Contemporary Christian',
+    bpm: 68,
     albumArt: 'https://images.unsplash.com/photo-1498038432885-c6f3f1b912ee?auto=format&fit=crop&w=400&q=80',
   },
   {
-    artist: 'Dua Lipa',
-    title: 'Levitating',
-    album: 'Future Nostalgia',
-    year: '2020',
-    duration: 203,
-    genre: 'Nu-Disco / Pop',
-    bpm: 103,
+    artist: 'Franky Sihombing',
+    title: 'Saat Indah Kuberhadapan Dengan-Mu',
+    album: 'Rayakan',
+    year: '2002',
+    duration: 320,
+    genre: 'Worship Classic',
+    bpm: 70,
     albumArt: 'https://images.unsplash.com/photo-1445985543469-433ecba62447?auto=format&fit=crop&w=400&q=80',
   },
   {
-    artist: 'Nadin Amizah',
-    title: 'Bertaut',
-    album: 'Selamat Ulang Tahun',
-    year: '2020',
-    duration: 315,
-    genre: 'Folk / Indie',
-    bpm: 88,
+    artist: 'Sidney Mohede',
+    title: 'Mengenal-Mu',
+    album: 'Louder Than Life',
+    year: '2010',
+    duration: 312,
+    genre: 'Acoustic Worship',
+    bpm: 75,
     albumArt: 'https://images.unsplash.com/photo-1511379938547-c1f69419868d?auto=format&fit=crop&w=400&q=80',
   },
   {
-    artist: 'Bruno Mars & Anderson .Paak (Silk Sonic)',
-    title: 'Leave The Door Open',
-    album: 'An Evening with Silk Sonic',
-    year: '2021',
-    duration: 242,
-    genre: 'R&B / Soul',
-    bpm: 148,
+    artist: 'True Worshippers',
+    title: 'Bersama-Mu Bapaku Berlari',
+    album: 'Favor',
+    year: '2012',
+    duration: 328,
+    genre: 'Praise & Worship',
+    bpm: 82,
     albumArt: 'https://images.unsplash.com/photo-1465847899084-d164df4dedc6?auto=format&fit=crop&w=400&q=80',
   },
 ];
 
-// Broadcast Shows Schedule
-const BROADCAST_SCHEDULE = [
+// Broadcast Shows Schedule (modifiable by Admin)
+let BROADCAST_SCHEDULE = [
   {
     id: 'show-1',
-    name: 'Morning Spirit & Coffee',
-    host: 'DJ Aris & Vina',
-    startHour: 6,
-    endHour: 10,
-    time: '06:00 - 10:00 WIB',
-    description: 'Semangat pagi pembuka hari dengan musik upbeat, ramalan cuaca, dan kabar terkini.',
+    name: 'Renungan Pagi & Pujian Jiwa',
+    host: 'Pdt. Andreas & Maria',
+    startHour: 5,
+    endHour: 8,
+    time: '05:00 - 08:00 WIB',
+    description: 'Awali pagi hari dengan renungan firman yang menguatkan dan lagu pujian pembawa damai.',
   },
   {
     id: 'show-2',
-    name: 'Top 40 Hits Midday',
-    host: 'DJ Denny Pratama',
-    startHour: 10,
-    endHour: 14,
-    time: '10:00 - 14:00 WIB',
-    description: 'Tangga lagu 40 lagu terpanas dalam dan luar negeri menemani waktu kerja Anda.',
+    name: 'Harmoni Kasih & Lagu Rohani',
+    host: 'Kak Daniel & Grace',
+    startHour: 8,
+    endHour: 12,
+    time: '08:00 - 12:00 WIB',
+    description: 'Lagu-lagu rohani pilihan menemani rutinitas dan pekerjaan Anda penuh berkat.',
   },
   {
     id: 'show-3',
-    name: 'Sore Santai & Request Time',
-    host: 'DJ Sarah Melody',
-    startHour: 14,
-    endHour: 18,
-    time: '14:00 - 18:00 WIB',
-    description: 'Saatnya request lagu favorit, kirim salam ke teman dan keluarga, serta obrolan santai pulang kantor.',
+    name: 'Sore Berkat & Request Pendengar',
+    host: 'DJ Hanna & Michael',
+    startHour: 12,
+    endHour: 17,
+    time: '12:00 - 17:00 WIB',
+    description: 'Kirim salam, kesaksian singkat, dan request lagu pujian bersama pendengar setia.',
   },
   {
     id: 'show-4',
-    name: 'Suara Senja Akustik',
-    host: 'DJ Bayu Anggara',
-    startHour: 18,
+    name: 'Penyembahan Senja & Doa Sahabat',
+    host: 'Ev. Stefanus',
+    startHour: 17,
     endHour: 21,
-    time: '18:00 - 21:00 WIB',
-    description: 'Alunan nada petikan gitar akustik dan lagu-lagu nostalgia yang menenangkan jiwa.',
+    time: '17:00 - 21:00 WIB',
+    description: 'Alunan musik penyembahan dan doa bersama bagi pergumulan dan keluarga.',
   },
   {
     id: 'show-5',
-    name: 'Night Drive & Chill Beats',
-    host: 'DJ Kenzo',
+    name: 'Malam Doa & Damai Sejahtera',
+    host: 'RadioBOSS Auto-Rotation',
     startHour: 21,
-    endHour: 24,
-    time: '21:00 - 00:00 WIB',
-    description: 'Irama lo-fi, synthwave, dan deep grooves pengantar tidur dan teman begadang.',
-  },
-  {
-    id: 'show-6',
-    name: 'Overnight AutoDJ Rotation',
-    host: 'RadioBOSS Auto-Pilot',
-    startHour: 0,
-    endHour: 6,
-    time: '00:00 - 06:00 WIB',
-    description: 'Otomatisasi siaran malam tanpa henti langsung dari server RadioBOSS playlist rotation.',
+    endHour: 5,
+    time: '21:00 - 05:00 WIB',
+    description: 'Lagu-lagu instrumental rohani dan kidung jemaat pengantar istirahat malam.',
   },
 ];
 
@@ -862,6 +853,259 @@ app.post('/api/chat/reaction', (req, res) => {
     reactionCounts[type] = (reactionCounts[type] || 0) + 1;
   }
   res.json({ success: true, reactions: reactionCounts });
+});
+
+// ----------------- ADMIN PORTAL ENDPOINTS -----------------
+
+// Default Admin credentials requested by user
+const ADMIN_USER = {
+  email: 'tn.timbu@gmail.com',
+  password: 'Eklesia_030918*',
+  name: 'Admin Eklesia Radio',
+};
+
+// Simple active admin tokens
+const activeAdminTokens = new Set<string>();
+
+// Middleware to check admin authorization
+function requireAdmin(req: express.Request, res: express.Response, next: express.NextFunction) {
+  const authHeader = req.headers.authorization;
+  const token = authHeader?.startsWith('Bearer ') ? authHeader.substring(7) : (req.headers['x-admin-token'] as string);
+
+  if (token && activeAdminTokens.has(token)) {
+    return next();
+  }
+  return res.status(401).json({ error: 'Akses khusus Admin. Silakan login terlebih dahulu.' });
+}
+
+// Admin Login
+app.post('/api/admin/login', (req, res) => {
+  const { username, password } = req.body;
+  const cleanEmail = (username || '').toString().trim().toLowerCase();
+  const cleanPass = (password || '').toString();
+
+  if (cleanEmail === ADMIN_USER.email.toLowerCase() && cleanPass === ADMIN_USER.password) {
+    const token = `adm_token_${Date.now()}_${Math.random().toString(36).substring(2, 10)}`;
+    activeAdminTokens.add(token);
+
+    return res.json({
+      success: true,
+      message: 'Berhasil masuk sebagai Admin Eklesia Radio',
+      token,
+      admin: {
+        email: ADMIN_USER.email,
+        role: 'admin',
+        name: ADMIN_USER.name,
+      },
+    });
+  }
+
+  return res.status(401).json({
+    success: false,
+    message: 'Username/Email atau Password Admin salah. Periksa kembali.',
+  });
+});
+
+// Admin Verify Token
+app.get('/api/admin/verify', (req, res) => {
+  const authHeader = req.headers.authorization;
+  const token = authHeader?.startsWith('Bearer ') ? authHeader.substring(7) : (req.headers['x-admin-token'] as string);
+
+  if (token && activeAdminTokens.has(token)) {
+    return res.json({
+      authenticated: true,
+      admin: {
+        email: ADMIN_USER.email,
+        role: 'admin',
+        name: ADMIN_USER.name,
+      },
+    });
+  }
+  return res.json({ authenticated: false });
+});
+
+// Admin Logout
+app.post('/api/admin/logout', (req, res) => {
+  const authHeader = req.headers.authorization;
+  const token = authHeader?.startsWith('Bearer ') ? authHeader.substring(7) : (req.headers['x-admin-token'] as string);
+  if (token) activeAdminTokens.delete(token);
+  res.json({ success: true, message: 'Berhasil keluar.' });
+});
+
+// Admin: Get All Schedule
+app.get('/api/admin/schedule', requireAdmin, (_req, res) => {
+  res.json({ schedule: BROADCAST_SCHEDULE });
+});
+
+// Admin: Save/Update Full Schedule
+app.post('/api/admin/schedule', requireAdmin, (req, res) => {
+  const { schedule } = req.body;
+  if (!Array.isArray(schedule)) {
+    return res.status(400).json({ error: 'Data jadwal harus berupa array.' });
+  }
+
+  BROADCAST_SCHEDULE = schedule.map((item, idx) => ({
+    id: item.id || `show-${Date.now()}-${idx}`,
+    name: item.name || 'Program Radio',
+    host: item.host || 'Penyiar Eklesia',
+    startHour: typeof item.startHour === 'number' ? item.startHour : 0,
+    endHour: typeof item.endHour === 'number' ? item.endHour : 24,
+    time: item.time || `${item.startHour ?? '00'}:00 - ${item.endHour ?? '24'}:00 WIB`,
+    description: item.description || '',
+    day: item.day,
+  }));
+
+  res.json({
+    success: true,
+    message: 'Jadwal siaran berhasil disimpan dan disinkronkan ke seluruh pengguna!',
+    schedule: BROADCAST_SCHEDULE,
+  });
+});
+
+// Admin: Add Single Schedule Show
+app.post('/api/admin/schedule/item', requireAdmin, (req, res) => {
+  const item = req.body;
+  if (!item.name || !item.time) {
+    return res.status(400).json({ error: 'Nama acara dan jam siaran wajib diisi.' });
+  }
+
+  const newShow = {
+    id: `show-${Date.now()}`,
+    name: item.name.trim(),
+    host: (item.host || 'Penyiar Studio').trim(),
+    startHour: typeof item.startHour === 'number' ? item.startHour : 8,
+    endHour: typeof item.endHour === 'number' ? item.endHour : 12,
+    time: item.time.trim(),
+    description: (item.description || '').trim(),
+    day: item.day,
+  };
+
+  BROADCAST_SCHEDULE.push(newShow);
+  res.json({ success: true, message: 'Acara baru berhasil ditambahkan.', show: newShow });
+});
+
+// Admin: Delete Single Schedule Show
+app.delete('/api/admin/schedule/item/:id', requireAdmin, (req, res) => {
+  const { id } = req.params;
+  BROADCAST_SCHEDULE = BROADCAST_SCHEDULE.filter((s) => s.id !== id);
+  res.json({ success: true, message: 'Acara berhasil dihapus.', schedule: BROADCAST_SCHEDULE });
+});
+
+// Admin: Song Catalog (Get, Add, Delete, Set Now Playing)
+app.get('/api/admin/songs', requireAdmin, (_req, res) => {
+  res.json({
+    songs: SIMULATED_TRACKS,
+    currentTrackIdx,
+  });
+});
+
+app.post('/api/admin/songs', requireAdmin, (req, res) => {
+  const { songs } = req.body;
+  if (Array.isArray(songs) && songs.length > 0) {
+    SIMULATED_TRACKS = songs;
+    return res.json({ success: true, message: 'Daftar rotasi lagu berhasil diperbarui.', songs: SIMULATED_TRACKS });
+  }
+  return res.status(400).json({ error: 'Data lagu tidak valid.' });
+});
+
+// Admin: Add song to playlist rotation
+app.post('/api/admin/songs/add', requireAdmin, (req, res) => {
+  const { artist, title, album, genre, duration } = req.body;
+  if (!artist || !title) {
+    return res.status(400).json({ error: 'Nama penyanyi dan judul lagu wajib diisi.' });
+  }
+
+  const newTrack = {
+    artist: artist.trim(),
+    title: title.trim(),
+    album: (album || 'Single Pujian').trim(),
+    year: new Date().getFullYear().toString(),
+    duration: parseInt(duration, 10) || 240,
+    genre: (genre || 'Praise & Worship').trim(),
+    bpm: 75,
+    albumArt: 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&w=400&q=80',
+  };
+
+  SIMULATED_TRACKS.unshift(newTrack);
+  res.json({ success: true, message: 'Lagu berhasil ditambahkan ke rotasi.', track: newTrack });
+});
+
+// Admin: Delete song from rotation
+app.delete('/api/admin/songs/:index', requireAdmin, (req, res) => {
+  const idx = parseInt(req.params.index, 10);
+  if (!isNaN(idx) && idx >= 0 && idx < SIMULATED_TRACKS.length) {
+    if (SIMULATED_TRACKS.length <= 1) {
+      return res.status(400).json({ error: 'Rotasi lagu minimal harus memiliki 1 lagu.' });
+    }
+    const removed = SIMULATED_TRACKS.splice(idx, 1);
+    return res.json({ success: true, message: `Lagu "${removed[0].title}" dihapus.`, songs: SIMULATED_TRACKS });
+  }
+  return res.status(404).json({ error: 'Lagu tidak ditemukan.' });
+});
+
+// Admin: Force switch now playing track
+app.post('/api/admin/songs/play-now', requireAdmin, (req, res) => {
+  const { artist, title, album, duration } = req.body;
+  if (!artist || !title) {
+    return res.status(400).json({ error: 'Penyanyi dan judul lagu wajib diisi.' });
+  }
+
+  liveWebhookTrack = {
+    artist: artist.trim(),
+    title: title.trim(),
+    album: album || 'Spesial Admin Airplay',
+    duration: parseInt(duration, 10) || 240,
+    updatedAt: Date.now(),
+    castTitle: `${artist} - ${title}`,
+  };
+
+  // Add to song history
+  songHistory.unshift({
+    id: `hist-${Date.now()}`,
+    artist: liveWebhookTrack.artist,
+    title: liveWebhookTrack.title,
+    album: liveWebhookTrack.album,
+    playedAt: 'Baru saja (Diputar Admin)',
+    duration: liveWebhookTrack.duration,
+    albumArt: 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&w=400&q=80',
+  });
+  if (songHistory.length > 25) songHistory.pop();
+
+  res.json({
+    success: true,
+    message: `Lagu "${artist} - ${title}" kini langsung diputar di seluruh pengguna!`,
+    currentTrack: liveWebhookTrack,
+  });
+});
+
+// Admin: Update station display appearance settings
+app.post('/api/admin/display-settings', requireAdmin, (req, res) => {
+  const { stationName, streamUrl, whatsappNumber } = req.body;
+  if (stationName) radioConfig.stationName = stationName.trim();
+  if (streamUrl) radioConfig.streamUrl = streamUrl.trim();
+
+  res.json({
+    success: true,
+    message: 'Pengaturan tampilan aplikasi berhasil diperbarui untuk seluruh pengguna!',
+    config: radioConfig,
+  });
+});
+
+// Admin: Clear or manage song request queue
+app.post('/api/admin/requests/update-status', requireAdmin, (req, res) => {
+  const { id, status } = req.body;
+  const item = songRequests.find((r) => r.id === id);
+  if (item && ['pending', 'queued', 'playing', 'rejected'].includes(status)) {
+    item.status = status;
+    return res.json({ success: true, message: `Status request diubah menjadi ${status}.`, requests: songRequests });
+  }
+  return res.status(404).json({ error: 'Request tidak ditemukan.' });
+});
+
+app.delete('/api/admin/requests/:id', requireAdmin, (req, res) => {
+  const { id } = req.params;
+  songRequests = songRequests.filter((r) => r.id !== id);
+  res.json({ success: true, message: 'Request dihapus.', requests: songRequests });
 });
 
 // ----------------- VITE / STATIC SERVING -----------------

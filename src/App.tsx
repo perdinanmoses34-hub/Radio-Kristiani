@@ -6,13 +6,17 @@ import { LiveChat } from './components/LiveChat';
 import { SongHistoryList } from './components/SongHistoryList';
 import { ScheduleGuide } from './components/ScheduleGuide';
 import { SongRequestModal } from './components/SongRequestModal';
+import { AdminLoginModal } from './components/AdminLoginModal';
+import { AdminDashboardModal } from './components/AdminDashboardModal';
 import { RadioBossStatus } from './types/radio';
-import { fetchRadioStatus } from './services/api';
+import { fetchRadioStatus, getAdminUser, verifyAdminSession } from './services/api';
 import {
   Calendar,
   Music,
   Radio,
   RadioTower,
+  Sliders,
+  ShieldCheck,
 } from 'lucide-react';
 
 export default function App() {
@@ -23,6 +27,11 @@ export default function App() {
     artist: '',
     title: '',
   });
+
+  // Admin state
+  const [adminUser, setAdminUser] = useState<{ email: string; name: string } | null>(() => getAdminUser());
+  const [isAdminLoginOpen, setIsAdminLoginOpen] = useState(false);
+  const [isAdminDashboardOpen, setIsAdminDashboardOpen] = useState(false);
 
   const loadStatus = useCallback(async () => {
     try {
@@ -40,18 +49,46 @@ export default function App() {
     return () => clearInterval(interval);
   }, [loadStatus]);
 
+  useEffect(() => {
+    // Check admin session validity
+    verifyAdminSession().then((isValid) => {
+      if (!isValid) {
+        setAdminUser(null);
+      }
+    });
+  }, []);
+
   const handleOpenRequestModal = (artist = '', title = '') => {
     setPrefillRequest({ artist, title });
     setIsRequestModalOpen(true);
   };
 
+  const handleAdminClick = () => {
+    if (adminUser) {
+      setIsAdminDashboardOpen(true);
+    } else {
+      setIsAdminLoginOpen(true);
+    }
+  };
+
+  const handleLoginSuccess = (admin: { email: string; name: string }) => {
+    setAdminUser(admin);
+    setIsAdminDashboardOpen(true);
+  };
+
+  const handleAdminLogout = () => {
+    setAdminUser(null);
+  };
+
   return (
     <div className="min-h-screen bg-neutral-950 text-neutral-100 flex flex-col font-sans selection:bg-amber-500/20 selection:text-amber-300 w-full max-w-full overflow-x-hidden relative">
-      {/* Clean Top Navigation Bar */}
+      {/* Clean Top Navigation Bar with Admin Button */}
       <TopNavbar
         activeTab={activeTab}
         onSelectTab={setActiveTab}
         onRequestClick={() => handleOpenRequestModal()}
+        onAdminClick={handleAdminClick}
+        isAdminLoggedIn={!!adminUser}
         stationName={status?.stationName || 'Eklesia Radio'}
       />
 
@@ -85,7 +122,7 @@ export default function App() {
                     </div>
                     <div className="mt-1.5">
                       <h3 className="text-sm font-bold text-white truncate">
-                        {status?.currentShow?.name || 'Renungan Pagi & Pujian'}
+                        {status?.currentShow?.name || 'Renungan Pagi & Pujian Jiwa'}
                       </h3>
                       <p className="text-xs text-neutral-400 truncate mt-0.5">
                         Host: {status?.currentShow?.host || 'Penyiar Studio'}
@@ -164,7 +201,10 @@ export default function App() {
         {/* TAB 3: SCHEDULE (JADWAL ACARA) */}
         {activeTab === 'schedule' && (
           <div className="w-full max-w-full overflow-hidden">
-            <ScheduleGuide />
+            <ScheduleGuide
+              onOpenAdminSchedule={handleAdminClick}
+              isAdminLoggedIn={!!adminUser}
+            />
           </div>
         )}
 
@@ -192,6 +232,21 @@ export default function App() {
         prefillTitle={prefillRequest.title}
       />
 
+      {/* Modal Login Khusus Admin */}
+      <AdminLoginModal
+        isOpen={isAdminLoginOpen}
+        onClose={() => setIsAdminLoginOpen(false)}
+        onLoginSuccess={handleLoginSuccess}
+      />
+
+      {/* Modal Panel Kelola Admin (Mengatur jadwal, rotasi lagu, dan tampilan) */}
+      <AdminDashboardModal
+        isOpen={isAdminDashboardOpen}
+        onClose={() => setIsAdminDashboardOpen(false)}
+        adminUser={adminUser}
+        onLogout={handleAdminLogout}
+      />
+
       {/* Clean Desktop Footer */}
       <footer className="hidden md:block mt-auto border-t border-neutral-800 bg-neutral-950 py-5 text-xs text-neutral-500">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 flex flex-col sm:flex-row items-center justify-between gap-3">
@@ -203,6 +258,14 @@ export default function App() {
           </div>
 
           <div className="flex items-center gap-4 text-neutral-400">
+            <button
+              onClick={handleAdminClick}
+              className="text-neutral-400 hover:text-amber-400 transition-colors cursor-pointer flex items-center gap-1"
+            >
+              <ShieldCheck className="h-3.5 w-3.5" />
+              <span>{adminUser ? 'Panel Admin (Aktif)' : 'Portal Masuk Admin'}</span>
+            </button>
+            <span>·</span>
             <span>Audio Latensi Rendah</span>
             <span>·</span>
             <span>Radio Server Connected</span>
@@ -214,3 +277,4 @@ export default function App() {
     </div>
   );
 }
+

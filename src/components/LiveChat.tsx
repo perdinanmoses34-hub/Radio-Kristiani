@@ -77,7 +77,7 @@ export const LiveChat: React.FC<LiveChatProps> = ({ onRequestClick }) => {
   };
 
   return (
-    <div className="flex flex-col h-[520px] rounded-2xl border border-neutral-800 bg-neutral-900/90 backdrop-blur-xl overflow-hidden shadow-xl">
+    <div className="flex flex-col h-[480px] sm:h-[520px] w-full max-w-full rounded-2xl border border-neutral-800 bg-neutral-900/90 backdrop-blur-xl overflow-hidden shadow-xl">
       {/* Chat header */}
       <div className="flex items-center justify-between border-b border-neutral-800 px-4 py-3 bg-neutral-950/60">
         <div className="flex items-center gap-2">

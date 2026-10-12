@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { TopNavbar } from './components/TopNavbar';
+import { MobileBottomNav } from './components/MobileBottomNav';
 import { AudioPlayerHero } from './components/AudioPlayerHero';
 import { LiveChat } from './components/LiveChat';
 import { SongHistoryList } from './components/SongHistoryList';
@@ -9,19 +10,15 @@ import { SongRequestModal } from './components/SongRequestModal';
 import { RadioBossStatus } from './types/radio';
 import { fetchRadioStatus } from './services/api';
 import {
-  Radio,
-  Music,
   Calendar,
-  MessageSquare,
+  Music,
   Server,
-  Headphones,
-  CheckCircle2,
-  Clock,
-  Sparkles,
+  MessageSquare,
+  Radio,
 } from 'lucide-react';
 
 export default function App() {
-  const [activeTab, setActiveTab] = useState<'player' | 'schedule' | 'history' | 'bridge'>('player');
+  const [activeTab, setActiveTab] = useState<'player' | 'chat' | 'schedule' | 'history' | 'bridge'>('player');
   const [status, setStatus] = useState<RadioBossStatus | null>(null);
   const [isRequestModalOpen, setIsRequestModalOpen] = useState(false);
   const [prefillRequest, setPrefillRequest] = useState<{ artist: string; title: string }>({
@@ -51,22 +48,24 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-neutral-950 text-neutral-100 flex flex-col font-sans selection:bg-amber-500/20 selection:text-amber-300">
-      {/* 3-Zone Top Navigation Bar */}
+    <div className="min-h-screen bg-neutral-950 text-neutral-100 flex flex-col font-sans selection:bg-amber-500/20 selection:text-amber-300 w-full max-w-full overflow-x-hidden relative">
+      {/* 3-Zone Clean Top Navigation Bar */}
       <TopNavbar
         activeTab={activeTab}
         onSelectTab={setActiveTab}
         onRequestClick={() => handleOpenRequestModal()}
+        stationName={status?.stationName || 'Radio Kristiani 98.4 FM'}
       />
 
-      {/* Main Content Area */}
-      <main className="flex-1 mx-auto w-full max-w-7xl px-4 py-6 sm:px-6 lg:py-8">
+      {/* Main Content Area - with mobile bottom nav safe padding (pb-24) */}
+      <main className="flex-1 mx-auto w-full max-w-7xl px-3 py-3.5 sm:px-6 lg:py-7 pb-24 md:pb-8 overflow-x-hidden min-w-0">
+        {/* TAB 1: PLAYER (SIARAN) */}
         {activeTab === 'player' && (
-          <div className="space-y-8">
-            {/* Desktop 2-column or Mobile stack: Player Hero + Live Listener Chat */}
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+          <div className="space-y-6 w-full max-w-full overflow-hidden">
+            {/* Desktop 2-column or Mobile focused deck */}
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 sm:gap-6 items-start">
               {/* Main Audio Player Deck */}
-              <div className="lg:col-span-8">
+              <div className="lg:col-span-8 w-full max-w-full min-w-0">
                 <AudioPlayerHero
                   status={status}
                   onRequestClick={() => handleOpenRequestModal()}
@@ -74,86 +73,86 @@ export default function App() {
                 />
 
                 {/* Quick Info Cards Row */}
-                <div className="mt-6 grid grid-cols-1 sm:grid-cols-3 gap-4">
-                  {/* Current Program */}
+                <div className="mt-5 grid grid-cols-1 sm:grid-cols-3 gap-3">
+                  {/* Current Program Card */}
                   <div
                     onClick={() => setActiveTab('schedule')}
-                    className="group rounded-2xl border border-neutral-800/80 bg-neutral-900/60 p-4 hover:border-neutral-700 transition-all cursor-pointer"
+                    className="group rounded-2xl border border-neutral-800/80 bg-neutral-900/60 p-3.5 hover:border-neutral-700 transition-all cursor-pointer select-none"
                   >
                     <div className="flex items-center justify-between text-xs text-neutral-400">
                       <span className="font-semibold text-neutral-300 flex items-center gap-1.5">
-                        <Calendar className="h-3.5 w-3.5 text-amber-400" />
-                        Jadwal Siaran
+                        <Calendar className="h-3.5 w-3.5 text-amber-400 shrink-0" />
+                        <span>Jadwal Acara</span>
                       </span>
-                      <span className="text-amber-400 font-mono text-[11px] group-hover:underline">Lihat Semua →</span>
+                      <span className="text-amber-400 font-mono text-[11px] group-hover:underline">Lihat →</span>
                     </div>
-                    <div className="mt-2">
+                    <div className="mt-1.5">
                       <h3 className="text-sm font-bold text-white truncate">
-                        {status?.currentShow?.name || 'Sore Santai & Request'}
+                        {status?.currentShow?.name || 'Renungan Pagi & Pujian'}
                       </h3>
                       <p className="text-xs text-neutral-400 truncate mt-0.5">
-                        Host: {status?.currentShow?.host || 'DJ Studio'} ({status?.currentShow?.time || '14:00 - 18:00'})
+                        Host: {status?.currentShow?.host || 'Penyiar Studio'}
                       </p>
                     </div>
                   </div>
 
-                  {/* Song History Preview */}
+                  {/* Song History Preview Card */}
                   <div
                     onClick={() => setActiveTab('history')}
-                    className="group rounded-2xl border border-neutral-800/80 bg-neutral-900/60 p-4 hover:border-neutral-700 transition-all cursor-pointer"
+                    className="group rounded-2xl border border-neutral-800/80 bg-neutral-900/60 p-3.5 hover:border-neutral-700 transition-all cursor-pointer select-none"
                   >
                     <div className="flex items-center justify-between text-xs text-neutral-400">
                       <span className="font-semibold text-neutral-300 flex items-center gap-1.5">
-                        <Music className="h-3.5 w-3.5 text-amber-400" />
-                        Daftar Lagu
+                        <Music className="h-3.5 w-3.5 text-amber-400 shrink-0" />
+                        <span>Daftar Lagu</span>
                       </span>
                       <span className="text-amber-400 font-mono text-[11px] group-hover:underline">Riwayat →</span>
                     </div>
-                    <div className="mt-2">
+                    <div className="mt-1.5">
                       <h3 className="text-sm font-bold text-white truncate">
                         Rotasi & Antrean Request
                       </h3>
                       <p className="text-xs text-neutral-400 truncate mt-0.5">
-                        Lihat track yang baru saja mengudara di radio
+                        Lagu rohani yang baru saja diputar
                       </p>
                     </div>
                   </div>
 
-                  {/* RadioBOSS Bridge Status */}
+                  {/* RadioBOSS Bridge Status Card */}
                   <div
                     onClick={() => setActiveTab('bridge')}
-                    className="group rounded-2xl border border-neutral-800/80 bg-neutral-900/60 p-4 hover:border-neutral-700 transition-all cursor-pointer"
+                    className="group rounded-2xl border border-neutral-800/80 bg-neutral-900/60 p-3.5 hover:border-neutral-700 transition-all cursor-pointer select-none"
                   >
                     <div className="flex items-center justify-between text-xs text-neutral-400">
                       <span className="font-semibold text-neutral-300 flex items-center gap-1.5">
-                        <Server className="h-3.5 w-3.5 text-amber-400" />
-                        RadioBOSS Bridge
+                        <Server className="h-3.5 w-3.5 text-amber-400 shrink-0" />
+                        <span>Server RadioBOSS</span>
                       </span>
                       <span className="text-amber-400 font-mono text-[11px] group-hover:underline">Kelola →</span>
                     </div>
-                    <div className="mt-2">
+                    <div className="mt-1.5">
                       <div className="flex items-center gap-1.5">
-                        <span className="h-2 w-2 rounded-full bg-emerald-400" />
+                        <span className="h-2 w-2 rounded-full bg-emerald-400 shrink-0" />
                         <h3 className="text-sm font-bold text-white truncate">
-                          {status?.mode === 'live' ? 'RadioBOSS Terhubung' : 'Simulator Aktif'}
+                          {status?.mode === 'live' ? 'RadioBOSS Live' : 'Simulator Aktif'}
                         </h3>
                       </div>
                       <p className="text-xs text-neutral-400 truncate mt-0.5">
-                        Metadata terupdate otomatis real-time
+                        Metadata now-playing otomatis
                       </p>
                     </div>
                   </div>
                 </div>
               </div>
 
-              {/* Live Listener Chat & Song Request Bar */}
-              <div className="lg:col-span-4">
+              {/* Desktop Live Listener Chat (Always visible on large screens) */}
+              <div className="hidden lg:block lg:col-span-4 w-full">
                 <LiveChat onRequestClick={() => handleOpenRequestModal()} />
               </div>
             </div>
 
-            {/* Song History Section on the main view */}
-            <div className="pt-4">
+            {/* Song History on desktop player view */}
+            <div className="hidden sm:block pt-2">
               <SongHistoryList
                 onRequestSong={(artist, title) => handleOpenRequestModal(artist, title)}
               />
@@ -161,18 +160,44 @@ export default function App() {
           </div>
         )}
 
-        {activeTab === 'schedule' && <ScheduleGuide />}
-
-        {activeTab === 'history' && (
-          <SongHistoryList
-            onRequestSong={(artist, title) => handleOpenRequestModal(artist, title)}
-          />
+        {/* TAB 2: CHAT (OBROLAN & REQUEST PENDENGAR) */}
+        {activeTab === 'chat' && (
+          <div className="w-full max-w-3xl mx-auto space-y-4">
+            <LiveChat onRequestClick={() => handleOpenRequestModal()} />
+          </div>
         )}
 
-        {activeTab === 'bridge' && <RadioBossBridge />}
+        {/* TAB 3: SCHEDULE (JADWAL ACARA) */}
+        {activeTab === 'schedule' && (
+          <div className="w-full max-w-full overflow-hidden">
+            <ScheduleGuide />
+          </div>
+        )}
+
+        {/* TAB 4: HISTORY (DAFTAR LAGU & ANTREAN REQUEST) */}
+        {activeTab === 'history' && (
+          <div className="w-full max-w-full overflow-hidden">
+            <SongHistoryList
+              onRequestSong={(artist, title) => handleOpenRequestModal(artist, title)}
+            />
+          </div>
+        )}
+
+        {/* TAB 5: BRIDGE (PENGATURAN RADIOBOSS) */}
+        {activeTab === 'bridge' && (
+          <div className="w-full max-w-full overflow-hidden">
+            <RadioBossBridge />
+          </div>
+        )}
       </main>
 
-      {/* Song Request Modal */}
+      {/* Android Mobile Bottom Navigation Bar (Visible only on phone/tablet < md) */}
+      <MobileBottomNav
+        activeTab={activeTab}
+        onSelectTab={setActiveTab}
+      />
+
+      {/* Modal Song Request */}
       <SongRequestModal
         isOpen={isRequestModalOpen}
         onClose={() => setIsRequestModalOpen(false)}
@@ -180,22 +205,22 @@ export default function App() {
         prefillTitle={prefillRequest.title}
       />
 
-      {/* Clean Footer */}
-      <footer className="mt-12 border-t border-neutral-800 bg-neutral-950 py-6 text-xs text-neutral-500">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 flex flex-col sm:flex-row items-center justify-between gap-4">
+      {/* Clean Desktop Footer */}
+      <footer className="hidden md:block mt-auto border-t border-neutral-800 bg-neutral-950 py-5 text-xs text-neutral-500">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 flex flex-col sm:flex-row items-center justify-between gap-3">
           <div className="flex items-center gap-2">
-            <Radio className="h-4 w-4 text-amber-500" />
-            <span className="font-semibold text-neutral-300">RadioBoss Stream Studio</span>
+            <Radio className="h-4 w-4 text-amber-500 shrink-0" />
+            <span className="font-semibold text-neutral-300">{status?.stationName || 'Radio Kristiani 98.4 FM'}</span>
             <span>·</span>
-            <span>Sistem Penyiaran Radio & Otomatisasi Terintegrasi</span>
+            <span>Streaming Online & Otomatisasi RadioBOSS</span>
           </div>
 
           <div className="flex items-center gap-4 text-neutral-400">
-            <span>Latensi Rendah</span>
+            <span>Audio Latensi Rendah</span>
             <span>·</span>
-            <span>RadioBOSS Remote API</span>
+            <span>RadioBOSS Remote Engine</span>
             <span>·</span>
-            <span>Audio WebStream 24/7</span>
+            <span>24 Jam Non-Stop</span>
           </div>
         </div>
       </footer>

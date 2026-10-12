@@ -181,31 +181,30 @@ export const RadioBossBridge: React.FC = () => {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-5 w-full max-w-full overflow-hidden">
       {/* Top Banner Status */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 rounded-2xl border border-neutral-800 bg-neutral-900/90 p-5 backdrop-blur-xl">
-        <div className="flex items-start sm:items-center gap-3">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3.5 rounded-2xl sm:rounded-3xl border border-neutral-800 bg-neutral-900/90 p-4 sm:p-5 backdrop-blur-xl w-full max-w-full overflow-hidden">
+        <div className="flex items-start sm:items-center gap-3 min-w-0">
           <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-amber-500/15 border border-amber-500/30 text-amber-400 shrink-0">
             <Radio className="h-5 w-5" />
           </div>
-          <div>
-            <div className="flex items-center gap-2">
-              <h2 className="text-base font-bold text-white">
-                Koneksi & Integrasi RadioBOSS Ultimate 7.1
+          <div className="min-w-0">
+            <div className="flex items-center gap-2 flex-wrap">
+              <h2 className="text-sm sm:text-base font-bold text-white truncate">
+                Koneksi RadioBOSS Ultimate 7.1
               </h2>
-              <span className="rounded bg-neutral-800 px-1.5 py-0.5 text-[10px] font-mono text-amber-400 border border-neutral-700">
+              <span className="rounded bg-neutral-800 px-1.5 py-0.5 text-[10px] font-mono text-amber-400 border border-neutral-700 shrink-0">
                 v7.1.1.4
               </span>
             </div>
-            <p className="text-xs text-neutral-400 mt-0.5">
-              Stasiun: <strong className="text-neutral-200">{config.stationName}</strong> · Format Judul:{' '}
-              <code className="bg-neutral-800 px-1 rounded text-amber-300 font-mono">%artist - %title</code>
+            <p className="text-xs text-neutral-400 mt-0.5 truncate">
+              Stasiun: <strong className="text-neutral-200">{config.stationName}</strong>
             </p>
           </div>
         </div>
 
         {/* Sub-tab navigation buttons */}
-        <div className="flex items-center gap-1 rounded-xl bg-neutral-950 p-1 border border-neutral-800">
+        <div className="flex items-center gap-1 rounded-xl bg-neutral-950 p-1 border border-neutral-800 w-full sm:w-auto overflow-x-auto no-scrollbar shrink-0">
           <button
             onClick={() => setBridgeTab('webhook')}
             className={`rounded-lg px-3 py-1.5 text-xs font-semibold transition-colors cursor-pointer ${

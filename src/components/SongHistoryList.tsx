@@ -49,7 +49,7 @@ export const SongHistoryList: React.FC<SongHistoryListProps> = ({ onRequestSong 
   };
 
   return (
-    <div className="rounded-2xl border border-neutral-800 bg-neutral-900/90 backdrop-blur-xl p-5 md:p-6 shadow-xl">
+    <div className="w-full max-w-full overflow-hidden rounded-2xl sm:rounded-3xl border border-neutral-800 bg-neutral-900/90 backdrop-blur-xl p-3.5 sm:p-5 lg:p-6 shadow-xl">
       {/* Header and Segments */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between border-b border-neutral-800 pb-4">
         <div>

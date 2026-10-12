@@ -54,7 +54,7 @@ export default function App() {
         activeTab={activeTab}
         onSelectTab={setActiveTab}
         onRequestClick={() => handleOpenRequestModal()}
-        stationName={status?.stationName || 'Radio Kristiani 98.4 FM'}
+        stationName={status?.stationName || 'Eklesia Radio'}
       />
 
       {/* Main Content Area - with mobile bottom nav safe padding (pb-24) */}

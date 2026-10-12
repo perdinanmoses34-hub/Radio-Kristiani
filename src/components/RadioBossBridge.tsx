@@ -233,7 +233,40 @@ export const RadioBossBridge: React.FC = () => {
                 : 'text-neutral-400 hover:text-white'
             }`}
           >
-            Panduan RadioBOSS
+            Panduan RadioBOSS & Zeno
+          </button>
+        </div>
+      </div>
+
+      {/* Mobile Listener Link Card - Auto-Sync Mobile Phones */}
+      <div className="rounded-2xl border border-amber-500/30 bg-gradient-to-r from-amber-500/10 via-neutral-900 to-neutral-900 p-4 sm:p-5 backdrop-blur-xl">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div className="min-w-0">
+            <span className="text-[11px] font-bold uppercase tracking-wider text-amber-400 block">
+              Bagikan Siaran ke Handphone Pendengar & Jemaat
+            </span>
+            <p className="mt-1 text-xs text-neutral-300 leading-relaxed">
+              Buka link ini di HP Anda (atau bagikan ke WhatsApp pendengar). Handphone akan <strong>otomatis 100% tersambung ke siaran Eklesia Radio</strong> tanpa perlu mengatur server lagi!
+            </p>
+          </div>
+          <button
+            onClick={() => {
+              const url = `${window.location.origin}${window.location.pathname}?stream=${encodeURIComponent(config.streamUrl)}&station=${encodeURIComponent(config.stationName)}`;
+              copyToClipboard(url, 'share_mobile');
+            }}
+            className="flex items-center gap-1.5 rounded-xl bg-amber-500 hover:bg-amber-400 px-4 py-2.5 text-xs font-bold text-neutral-950 transition-all shrink-0 cursor-pointer shadow-md shadow-amber-500/20 active:scale-95"
+          >
+            {copiedUrl === 'share_mobile' ? (
+              <>
+                <Check className="h-4 w-4" />
+                <span>Link HP Tersalin!</span>
+              </>
+            ) : (
+              <>
+                <Copy className="h-4 w-4" />
+                <span>Salin Link untuk HP</span>
+              </>
+            )}
           </button>
         </div>
       </div>

@@ -131,6 +131,36 @@ function setLocal<T>(key: string, value: T): void {
   }
 }
 
+// Auto-detect stream URL from query string on mobile phone (e.g. ?stream=...&station=...)
+if (typeof window !== 'undefined') {
+  try {
+    const searchParams = new URLSearchParams(window.location.search);
+    const streamParam = searchParams.get('stream');
+    const stationParam = searchParams.get('station');
+    if (streamParam || stationParam) {
+      const cfg = getLocal<RadioBossConfig>('radio_config', {
+        mode: 'simulation',
+        host: '127.0.0.1',
+        port: 9000,
+        streamUrl: 'https://stream.zeno.fm/f3wvbbqmdg8uv',
+        stationName: 'Eklesia Radio',
+        autoSyncSeconds: 3,
+      });
+      if (streamParam) {
+        let clean = decodeURIComponent(streamParam).trim();
+        if (clean.startsWith('http://stream.zeno.fm')) clean = clean.replace('http://', 'https://');
+        cfg.streamUrl = clean;
+      }
+      if (stationParam) {
+        cfg.stationName = decodeURIComponent(stationParam).trim();
+      }
+      setLocal('radio_config', cfg);
+    }
+  } catch {
+    // ignore
+  }
+}
+
 // Client-side fallback state
 let clientTrackStartTime = Date.now() - 40000;
 let clientTrackIndex = 0;
@@ -148,7 +178,7 @@ function getClientRadioStatus(): RadioBossStatus {
     host: '127.0.0.1',
     port: 9000,
     streamUrl: 'https://stream.zeno.fm/f3wvbbqmdg8uv',
-    stationName: 'Radio Kristiani 98.4 FM',
+    stationName: 'Eklesia Radio (Radio Kristiani)',
     autoSyncSeconds: 3,
   });
 

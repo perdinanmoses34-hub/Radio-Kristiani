@@ -18,7 +18,7 @@ let radioConfig = {
   port: 9000,
   password: 'radioboss123',
   streamUrl: 'https://stream.zeno.fm/f3wvbbqmdg8uv', // Default live audio stream
-  stationName: 'RadioBOSS Stream', // Synced with user's RadioBOSS Station Name
+  stationName: 'Eklesia Radio', // Synced with user's RadioBOSS Station Name
   autoSyncSeconds: 3,
 };
 

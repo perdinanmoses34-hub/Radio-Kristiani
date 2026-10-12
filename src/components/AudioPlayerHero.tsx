@@ -108,7 +108,10 @@ export const AudioPlayerHero: React.FC<AudioPlayerHeroProps> = ({
       setAudioError(null);
       setIsBuffering(true);
 
-      const streamUrl = status?.streamUrl || 'https://stream.zeno.fm/f3wvbbqmdg8uv';
+      let streamUrl = status?.streamUrl || 'https://stream.zeno.fm/f3wvbbqmdg8uv';
+      if (typeof window !== 'undefined' && window.location.protocol === 'https:' && streamUrl.startsWith('http://')) {
+        streamUrl = streamUrl.replace('http://', 'https://');
+      }
       const targetUrl = isLowLatency ? `${streamUrl}?cb=${Date.now()}` : streamUrl;
 
       if (audio.src !== targetUrl) {

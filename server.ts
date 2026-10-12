@@ -859,8 +859,8 @@ app.post('/api/chat/reaction', (req, res) => {
 
 // Default Admin credentials requested by user
 const ADMIN_USER = {
-  email: 'tn.timbu@gmail.com',
-  password: 'Eklesia_030918*',
+  email: process.env.ADMIN_EMAIL || 'tn.timbu@gmail.com',
+  password: process.env.ADMIN_PASSWORD || 'Eklesia_030918*',
   name: 'Admin Eklesia Radio',
 };
 

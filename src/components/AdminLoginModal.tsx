@@ -7,7 +7,6 @@ import {
   AlertCircle,
   Loader2,
   CheckCircle2,
-  ShieldCheck,
 } from 'lucide-react';
 import { loginAdmin } from '../services/api';
 
@@ -22,8 +21,8 @@ export const AdminLoginModal: React.FC<AdminLoginModalProps> = ({
   onClose,
   onLoginSuccess,
 }) => {
-  const [username, setUsername] = useState('tn.timbu@gmail.com');
-  const [password, setPassword] = useState('Eklesia_030918*');
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
@@ -56,12 +55,6 @@ export const AdminLoginModal: React.FC<AdminLoginModalProps> = ({
     }
   };
 
-  const handleFillDefault = () => {
-    setUsername('tn.timbu@gmail.com');
-    setPassword('Eklesia_030918*');
-    setErrorMsg(null);
-  };
-
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-in fade-in duration-200">
       <div
@@ -81,7 +74,7 @@ export const AdminLoginModal: React.FC<AdminLoginModalProps> = ({
         </button>
 
         {/* Modal Header */}
-        <div className="flex items-center gap-3.5 mb-5">
+        <div className="flex items-center gap-3.5 mb-6">
           <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-amber-400 to-amber-600 text-neutral-950 font-bold shadow-lg shadow-amber-500/20 shrink-0">
             <Lock className="h-6 w-6" />
           </div>
@@ -90,32 +83,9 @@ export const AdminLoginModal: React.FC<AdminLoginModalProps> = ({
               Masuk Khusus Admin
             </h2>
             <p className="text-xs text-neutral-400">
-              Kelola jadwal siaran, rotasi lagu, dan tampilan aplikasi
+              Kelola jadwal siaran, rotasi lagu, dan pengaturan aplikasi
             </p>
           </div>
-        </div>
-
-        {/* Default credentials quick-fill helper */}
-        <div className="mb-5 rounded-2xl border border-amber-500/25 bg-amber-500/10 p-3 text-xs text-amber-200 flex items-start justify-between gap-3">
-          <div className="space-y-0.5">
-            <div className="font-semibold text-amber-300 flex items-center gap-1.5">
-              <ShieldCheck className="h-4 w-4" />
-              <span>Akun Admin Resmi:</span>
-            </div>
-            <div className="text-[11px] text-neutral-300">
-              Email: <span className="font-mono text-white">tn.timbu@gmail.com</span>
-            </div>
-            <div className="text-[11px] text-neutral-300">
-              Password: <span className="font-mono text-white">Eklesia_030918*</span>
-            </div>
-          </div>
-          <button
-            type="button"
-            onClick={handleFillDefault}
-            className="text-[11px] font-bold text-amber-400 hover:text-amber-300 underline underline-offset-2 shrink-0 py-1"
-          >
-            Gunakan Akun
-          </button>
         </div>
 
         {/* Form */}
@@ -133,7 +103,7 @@ export const AdminLoginModal: React.FC<AdminLoginModalProps> = ({
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
                 required
-                placeholder="tn.timbu@gmail.com"
+                placeholder="nama@email.com"
                 className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-neutral-950 border border-neutral-700/80 text-white placeholder-neutral-500 text-sm focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 transition-all font-mono"
               />
             </div>

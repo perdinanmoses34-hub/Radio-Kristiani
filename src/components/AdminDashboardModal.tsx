@@ -245,7 +245,7 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
                 </span>
               </div>
               <p className="text-xs text-neutral-400">
-                Login sebagai: <span className="text-neutral-200 font-mono">{adminUser?.email || 'tn.timbu@gmail.com'}</span>
+                Login sebagai: <span className="text-neutral-200 font-medium">{adminUser?.name || 'Administrator Radio'}</span>
               </p>
             </div>
           </div>

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Music, Clock, Search, Disc, Play, CheckCircle2, ListMusic, Sparkles } from 'lucide-react';
 import { SongHistoryItem, SongRequestItem } from '../types/radio';
 import { fetchSongHistory, fetchSongRequests } from '../services/api';
+import { stationHeroCover } from '../assets/images';
 
 interface SongHistoryListProps {
   onRequestSong: (artist: string, title: string) => void;
@@ -121,12 +122,12 @@ export const SongHistoryList: React.FC<SongHistoryListProps> = ({ onRequestSong 
                     {/* Thumbnail */}
                     <div className="relative h-11 w-11 shrink-0 overflow-hidden rounded-lg bg-neutral-800 border border-neutral-800">
                       <img
-                        src={item.albumArt || '/src/assets/images/station_hero_cover_1791802325450.jpg'}
+                        src={item.albumArt || stationHeroCover}
                         alt={item.title}
                         className="h-full w-full object-cover"
                         referrerPolicy="no-referrer"
                         onError={(e) => {
-                          (e.target as HTMLImageElement).src = '/src/assets/images/station_hero_cover_1791802325450.jpg';
+                          (e.target as HTMLImageElement).src = stationHeroCover;
                         }}
                       />
                     </div>

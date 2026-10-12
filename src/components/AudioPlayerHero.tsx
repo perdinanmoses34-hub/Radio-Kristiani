@@ -18,6 +18,7 @@ import {
 import { RadioBossStatus } from '../types/radio';
 import { AudioVisualizer } from './AudioVisualizer';
 import { sendChatReaction } from '../services/api';
+import { stationHeroCover } from '../assets/images';
 
 interface AudioPlayerHeroProps {
   status: RadioBossStatus | null;
@@ -211,12 +212,12 @@ export const AudioPlayerHero: React.FC<AudioPlayerHeroProps> = ({
             {/* Front Album Card */}
             <div className="relative z-10 h-44 w-44 sm:h-56 sm:w-56 overflow-hidden rounded-xl border border-neutral-700/80 bg-neutral-800 shadow-2xl">
               <img
-                src={currentTrack?.albumArt || '/src/assets/images/station_hero_cover_1791802325450.jpg'}
+                src={currentTrack?.albumArt || stationHeroCover}
                 alt={currentTrack?.title || 'Album Art'}
                 className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
                 referrerPolicy="no-referrer"
                 onError={(e) => {
-                  (e.target as HTMLImageElement).src = '/src/assets/images/station_hero_cover_1791802325450.jpg';
+                  (e.target as HTMLImageElement).src = stationHeroCover;
                 }}
               />
               <div className="absolute inset-0 bg-gradient-to-t from-neutral-950/80 via-transparent to-transparent" />

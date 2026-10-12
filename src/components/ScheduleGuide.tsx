@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Calendar, Clock, Radio, User, Sparkles, CheckCircle2 } from 'lucide-react';
 import { RadioShow } from '../types/radio';
 import { fetchSchedule } from '../services/api';
+import { studioMicBroadcast } from '../assets/images';
 
 export const ScheduleGuide: React.FC = () => {
   const [schedule, setSchedule] = useState<RadioShow[]>([]);
@@ -27,7 +28,7 @@ export const ScheduleGuide: React.FC = () => {
       <div className="relative overflow-hidden rounded-2xl border border-neutral-800 bg-neutral-900 shadow-xl">
         <div className="relative h-48 sm:h-64 w-full overflow-hidden">
           <img
-            src="/src/assets/images/studio_mic_broadcast_1791802346111.jpg"
+            src={studioMicBroadcast}
             alt="Radio Broadcasting Studio"
             className="h-full w-full object-cover opacity-60"
             referrerPolicy="no-referrer"

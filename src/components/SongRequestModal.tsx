@@ -30,12 +30,12 @@ export const SongRequestModal: React.FC<SongRequestModalProps> = ({
   if (!isOpen) return null;
 
   const popularSuggestions = [
-    { artist: 'Tulus', title: 'Hati-Hati di Jalan' },
-    { artist: 'Coldplay', title: 'Viva La Vida' },
-    { artist: 'Sheila on 7', title: 'Dan...' },
-    { artist: 'Mahalini', title: 'Sial' },
-    { artist: 'Bernadya', title: 'Satu Bulan' },
-    { artist: 'Dewa 19', title: 'Kangen' },
+    { artist: 'NDC Worship', title: 'Waktu Tuhan' },
+    { artist: 'JPCC Worship', title: 'Sampai Akhir Hidupku' },
+    { artist: 'Symphony Worship', title: 'Ku Ada Sebab Anugerah-Mu' },
+    { artist: 'Sari Simorangkir', title: 'Kaulah Harapan' },
+    { artist: 'Hillsong', title: 'What A Beautiful Name' },
+    { artist: 'Franky Sihombing', title: 'Saat Indah' },
   ];
 
   const handleSubmit = async (e: React.FormEvent) => {

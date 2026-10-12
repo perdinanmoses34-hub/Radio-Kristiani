@@ -2,5 +2,7 @@
   "name": "RadioBoss Stream Studio",
   "description": "Aplikasi radio streaming online terhubung RadioBOSS dengan pembaruan metadata lagu real-time, live chat, request lagu langsung, dan jadwal siaran otomatis.",
   "requestFramePermissions": [],
-  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
 }

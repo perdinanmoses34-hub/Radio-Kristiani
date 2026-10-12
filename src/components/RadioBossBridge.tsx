@@ -23,7 +23,7 @@ import { RadioBossConfig } from '../types/radio';
 
 export const RadioBossBridge: React.FC = () => {
   const [zenoInput, setZenoInput] = useState(() => {
-    return localStorage.getItem('zeno_station_url') || 'https://stream.zeno.fm/f3wvbbqmdg8uv';
+    return localStorage.getItem('zeno_station_url') || 'https://stream.zeno.fm/60otus84tj7tv';
   });
   const [whatsappNumber, setWhatsappNumber] = useState(() => {
     return localStorage.getItem('radio_whatsapp') || '081234567890';
@@ -205,7 +205,7 @@ export const RadioBossBridge: React.FC = () => {
                   type="text"
                   value={zenoInput}
                   onChange={(e) => setZenoInput(e.target.value)}
-                  placeholder="Contoh: https://stream.zeno.fm/f3wvbbqmdg8uv atau https://zeno.fm/radio/eklesia-radio"
+                  placeholder="Contoh: https://stream.zeno.fm/60otus84tj7tv atau https://zeno.fm/radio/eklesia-radio"
                   required
                   className="w-full rounded-2xl bg-neutral-950 border border-neutral-700/80 px-4 py-3 text-sm text-white font-mono placeholder-neutral-600 focus:border-amber-500 focus:outline-none transition-colors"
                 />
@@ -290,7 +290,7 @@ export const RadioBossBridge: React.FC = () => {
             <div className="flex flex-wrap gap-2">
               <button
                 type="button"
-                onClick={() => handleUsePreset('https://stream.zeno.fm/f3wvbbqmdg8uv', 'Eklesia Radio (Radio Kristiani)')}
+                onClick={() => handleUsePreset('https://stream.zeno.fm/60otus84tj7tv', 'Eklesia Radio (Radio Kristiani)')}
                 className="rounded-xl bg-neutral-950 hover:bg-neutral-800 border border-neutral-800 px-3 py-1.5 text-xs text-neutral-300 hover:text-amber-400 transition-colors cursor-pointer"
               >
                 📻 Stream Zeno Default (Eklesia Radio)

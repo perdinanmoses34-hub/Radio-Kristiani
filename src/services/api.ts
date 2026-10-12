@@ -9,9 +9,9 @@ import {
 import { stationHeroCover } from '../assets/images';
 
 // Default Official Zeno FM stream connected to RadioBOSS
-export const DEFAULT_ZENO_STREAM_URL = 'https://stream.zeno.fm/f3wvbbqmdg8uv';
-export const DEFAULT_ZENO_STATION_URL = 'https://zeno.fm/radio/eklesia-radio';
-export const DEFAULT_ZENO_EMBED_URL = 'https://zeno.fm/player/eklesia-radio';
+export const DEFAULT_ZENO_STREAM_URL = 'https://stream.zeno.fm/60otus84tj7tv';
+export const DEFAULT_ZENO_STATION_URL = 'https://zeno.fm/radio/60otus84tj7tv';
+export const DEFAULT_ZENO_EMBED_URL = 'https://zeno.fm/player/60otus84tj7tv';
 
 // Flag to track whether Express backend is responding
 let backendAvailable: boolean | null = null;
@@ -211,9 +211,21 @@ function setLocal<T>(key: string, value: T): void {
   }
 }
 
-// Auto-detect stream URL from query string on mobile phone (e.g. ?stream=...&station=...)
+// Auto-detect stream URL from query string on mobile phone and migrate legacy keys
 if (typeof window !== 'undefined') {
   try {
+    const raw = localStorage.getItem('radio_config');
+    if (raw) {
+      const cfg = JSON.parse(raw);
+      if (!cfg.streamUrl || cfg.streamUrl.includes('f3wvbbqmdg8uv')) {
+        cfg.streamUrl = DEFAULT_ZENO_STREAM_URL;
+        localStorage.setItem('radio_config', JSON.stringify(cfg));
+      }
+    }
+    const legacyZeno = localStorage.getItem('zeno_station_url');
+    if (legacyZeno && legacyZeno.includes('f3wvbbqmdg8uv')) {
+      localStorage.setItem('zeno_station_url', DEFAULT_ZENO_STREAM_URL);
+    }
     const searchParams = new URLSearchParams(window.location.search);
     const streamParam = searchParams.get('stream');
     const stationParam = searchParams.get('station');
@@ -222,7 +234,7 @@ if (typeof window !== 'undefined') {
         mode: 'simulation',
         host: '127.0.0.1',
         port: 9000,
-        streamUrl: 'https://stream.zeno.fm/f3wvbbqmdg8uv',
+        streamUrl: DEFAULT_ZENO_STREAM_URL,
         stationName: 'Eklesia Radio',
         autoSyncSeconds: 3,
       });
@@ -257,7 +269,7 @@ function getClientRadioStatus(): RadioBossStatus {
     mode: 'simulation',
     host: '127.0.0.1',
     port: 9000,
-    streamUrl: 'https://stream.zeno.fm/f3wvbbqmdg8uv',
+    streamUrl: DEFAULT_ZENO_STREAM_URL,
     stationName: 'Eklesia Radio (Radio Kristiani)',
     autoSyncSeconds: 3,
   });
@@ -507,8 +519,8 @@ export async function fetchRadioSettings(): Promise<{ config: RadioBossConfig & 
     host: '127.0.0.1',
     port: 9000,
     password: '',
-    streamUrl: 'https://stream.zeno.fm/f3wvbbqmdg8uv',
-    zenoStationUrl: 'https://zeno.fm/radio/eklesia-radio',
+    streamUrl: DEFAULT_ZENO_STREAM_URL,
+    zenoStationUrl: DEFAULT_ZENO_STATION_URL,
     whatsappNumber: '081234567890',
     stationName: 'Eklesia Radio (Radio Kristiani)',
     autoSyncSeconds: 3,
@@ -522,8 +534,8 @@ export async function updateRadioSettings(payload: Partial<RadioBossConfig>): Pr
     mode: 'simulation',
     host: '127.0.0.1',
     port: 9000,
-    streamUrl: 'https://stream.zeno.fm/f3wvbbqmdg8uv',
-    zenoStationUrl: 'https://zeno.fm/radio/eklesia-radio',
+    streamUrl: DEFAULT_ZENO_STREAM_URL,
+    zenoStationUrl: DEFAULT_ZENO_STATION_URL,
     whatsappNumber: '081234567890',
     stationName: 'Eklesia Radio (Radio Kristiani)',
     autoSyncSeconds: 3,

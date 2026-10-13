@@ -21,7 +21,7 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
 
   return (
     <nav
-      className="md:hidden fixed bottom-0 left-0 right-0 z-40 w-full bg-neutral-950/95 backdrop-blur-2xl border-t border-neutral-800/90 px-1 py-1 shadow-2xl"
+      className="md:hidden fixed bottom-0 left-0 right-0 z-40 w-full bg-white/95 backdrop-blur-2xl border-t border-slate-200/90 px-1 py-1 shadow-[0_-2px_10px_rgba(0,0,0,0.04)]"
       style={{ paddingBottom: 'max(env(safe-area-inset-bottom, 8px), 8px)' }}
       aria-label="Navigasi Utama Mobile"
     >
@@ -36,28 +36,28 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
               onClick={() => onSelectTab(tab.id)}
               className={`flex flex-col items-center justify-center min-h-[48px] py-1 px-1 rounded-xl transition-all cursor-pointer select-none active:scale-95 ${
                 isActive
-                  ? 'text-amber-400 font-bold'
-                  : 'text-neutral-400 hover:text-neutral-200'
+                  ? 'text-amber-600 font-bold'
+                  : 'text-slate-500 hover:text-slate-800'
               }`}
             >
               {/* Tab Icon with active pill */}
               <div className="relative flex items-center justify-center">
                 <div
-                  className={`flex h-7 w-12 items-center justify-center rounded-full transition-colors ${
-                    isActive ? 'bg-amber-500/20 text-amber-400' : 'text-neutral-400'
+                  className={`flex h-7 w-12 items-center justify-center rounded-full transition-all ${
+                    isActive ? 'bg-amber-50 text-amber-600 border border-amber-200/80 shadow-2xs' : 'text-slate-500'
                   }`}
                 >
                   <Icon className="h-4.5 w-4.5" />
                 </div>
                 {tab.badge && tab.badge > 0 && (
-                  <span className="absolute -top-1 right-2 flex h-4 w-4 items-center justify-center rounded-full bg-rose-500 text-[9px] font-bold text-white">
+                  <span className="absolute -top-1 right-2 flex h-4 w-4 items-center justify-center rounded-full bg-rose-500 text-[9px] font-bold text-white shadow-xs">
                     {tab.badge}
                   </span>
                 )}
               </div>
 
               {/* Tab Label */}
-              <span className={`text-[10px] tracking-tight mt-0.5 ${isActive ? 'text-amber-400 font-bold' : 'text-neutral-400'}`}>
+              <span className={`text-[10px] tracking-tight mt-0.5 ${isActive ? 'text-amber-700 font-bold' : 'text-slate-500 font-medium'}`}>
                 {tab.label}
               </span>
             </button>

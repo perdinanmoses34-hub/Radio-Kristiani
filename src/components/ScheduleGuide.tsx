@@ -34,25 +34,25 @@ export const ScheduleGuide: React.FC<ScheduleGuideProps> = ({
   return (
     <div className="space-y-6">
       {/* Studio Header Card */}
-      <div className="relative overflow-hidden rounded-2xl border border-neutral-800 bg-neutral-900 shadow-xl">
+      <div className="relative overflow-hidden rounded-2xl sm:rounded-3xl border border-slate-200/90 bg-white shadow-md">
         <div className="relative h-48 sm:h-64 w-full overflow-hidden">
           <img
             src={studioMicBroadcast}
             alt="Radio Broadcasting Studio"
-            className="h-full w-full object-cover opacity-60"
+            className="h-full w-full object-cover"
             referrerPolicy="no-referrer"
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-neutral-950 via-neutral-950/60 to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/60 to-transparent" />
           <div className="absolute bottom-5 left-5 right-5 sm:bottom-6 sm:left-8 flex flex-col sm:flex-row sm:items-end justify-between gap-4">
             <div>
-              <div className="flex items-center gap-2 text-xs font-semibold text-amber-400">
+              <div className="flex items-center gap-2 text-xs font-bold text-amber-400">
                 <Calendar className="h-4 w-4" />
                 <span>Jadwal Siaran Harian RadioBOSS</span>
               </div>
-              <h2 className="mt-1 text-2xl sm:text-3xl font-extrabold tracking-tight text-white">
+              <h2 className="mt-1 text-2xl sm:text-3xl font-black tracking-tight text-white">
                 Program Acara &amp; On-Air Host
               </h2>
-              <p className="mt-1 text-xs sm:text-sm text-neutral-300 max-w-2xl">
+              <p className="mt-1 text-xs sm:text-sm text-slate-200 max-w-2xl font-medium">
                 Susunan program siaran 24 jam non-stop yang dikelola langsung melalui scheduler otomatis RadioBOSS.
               </p>
             </div>
@@ -60,9 +60,9 @@ export const ScheduleGuide: React.FC<ScheduleGuideProps> = ({
             {onOpenAdminSchedule && (
               <button
                 onClick={onOpenAdminSchedule}
-                className="flex items-center gap-1.5 self-start sm:self-end px-3.5 py-2 rounded-xl bg-neutral-900/90 hover:bg-neutral-800 border border-amber-500/40 text-amber-300 text-xs font-bold transition-all shadow-md active:scale-95 cursor-pointer shrink-0"
+                className="flex items-center gap-1.5 self-start sm:self-end px-3.5 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 text-xs font-bold transition-all shadow-md active:scale-95 cursor-pointer shrink-0"
               >
-                <Sliders className="h-3.5 w-3.5 text-amber-400" />
+                <Sliders className="h-3.5 w-3.5 text-slate-950" />
                 <span>{isAdminLoggedIn ? 'Atur Jadwal (Admin)' : 'Atur Jadwal (Login Admin)'}</span>
               </button>
             )}
@@ -75,37 +75,37 @@ export const ScheduleGuide: React.FC<ScheduleGuideProps> = ({
         {schedule.map((show) => (
           <div
             key={show.id}
-            className={`relative rounded-2xl p-5 border transition-all ${
+            className={`relative rounded-2xl p-5 border transition-all shadow-2xs ${
               show.isLiveNow
-                ? 'bg-gradient-to-br from-amber-500/10 via-neutral-900 to-neutral-900 border-amber-500/50 shadow-lg shadow-amber-500/10 ring-1 ring-amber-500/30'
-                : 'bg-neutral-900/80 border-neutral-800/80 hover:border-neutral-700'
+                ? 'bg-gradient-to-br from-amber-50/70 via-white to-white border-2 border-amber-400 shadow-md ring-2 ring-amber-100'
+                : 'bg-white border-slate-200/90 hover:border-slate-300 hover:shadow-md'
             }`}
           >
             {/* Live now indicator */}
             <div className="flex items-center justify-between gap-3 mb-2">
-              <div className="flex items-center gap-2 text-xs font-mono tabular-nums text-neutral-400">
-                <Clock className="h-3.5 w-3.5 text-amber-400" />
+              <div className="flex items-center gap-1.5 text-xs font-mono tabular-nums text-amber-600 font-bold">
+                <Clock className="h-3.5 w-3.5" />
                 <span>{show.time}</span>
               </div>
               {show.isLiveNow && (
-                <span className="flex items-center gap-1.5 rounded-full bg-emerald-500/15 border border-emerald-500/30 px-2.5 py-0.5 text-[11px] font-bold text-emerald-300">
-                  <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
+                <span className="flex items-center gap-1.5 rounded-full bg-emerald-50 border border-emerald-200 px-2.5 py-0.5 text-[11px] font-bold text-emerald-700">
+                  <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
                   SEDANG MENGUDARA
                 </span>
               )}
             </div>
 
-            <h3 className="text-base font-bold text-white group-hover:text-amber-400">
+            <h3 className="text-base font-bold text-slate-900 group-hover:text-amber-600">
               {show.name}
             </h3>
 
-            <div className="mt-1.5 flex items-center gap-1.5 text-xs text-neutral-400">
-              <User className="h-3.5 w-3.5 text-neutral-500" />
+            <div className="mt-1.5 flex items-center gap-1.5 text-xs text-slate-500">
+              <User className="h-3.5 w-3.5 text-slate-400" />
               <span>Penyiar / Host:</span>
-              <strong className="text-neutral-200">{show.host}</strong>
+              <strong className="text-slate-800 font-semibold">{show.host}</strong>
             </div>
 
-            <p className="mt-2.5 text-xs text-neutral-300/90 leading-relaxed">
+            <p className="mt-2.5 text-xs text-slate-600 leading-relaxed">
               {show.description}
             </p>
           </div>

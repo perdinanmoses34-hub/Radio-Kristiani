@@ -77,13 +77,13 @@ export const LiveChat: React.FC<LiveChatProps> = ({ onRequestClick }) => {
   };
 
   return (
-    <div className="flex flex-col h-[480px] sm:h-[520px] w-full max-w-full rounded-2xl border border-neutral-800 bg-neutral-900/90 backdrop-blur-xl overflow-hidden shadow-xl">
+    <div className="flex flex-col h-[480px] sm:h-[520px] w-full max-w-full rounded-2xl border border-slate-200/90 bg-white overflow-hidden shadow-md">
       {/* Chat header */}
-      <div className="flex items-center justify-between border-b border-neutral-800 px-4 py-3 bg-neutral-950/60">
+      <div className="flex items-center justify-between border-b border-slate-200 px-4 py-3 bg-slate-50/90">
         <div className="flex items-center gap-2">
-          <MessageSquare className="h-4 w-4 text-amber-400" />
-          <h2 className="text-sm font-bold text-white">Live Interaksi & Obrolan</h2>
-          <span className="text-[11px] font-mono tabular-nums text-emerald-400 bg-emerald-500/10 px-1.5 py-0.5 rounded border border-emerald-500/20">
+          <MessageSquare className="h-4 w-4 text-amber-500" />
+          <h2 className="text-sm font-bold text-slate-800">Live Interaksi &amp; Obrolan</h2>
+          <span className="text-[11px] font-mono tabular-nums text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded-md border border-emerald-200 font-bold">
             Realtime
           </span>
         </div>
@@ -97,38 +97,38 @@ export const LiveChat: React.FC<LiveChatProps> = ({ onRequestClick }) => {
               onBlur={(e) => handleSaveNick(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && handleSaveNick((e.target as HTMLInputElement).value)}
               autoFocus
-              className="w-28 rounded bg-neutral-800 px-2 py-0.5 text-xs text-white border border-amber-500/50 outline-none"
+              className="w-28 rounded-lg bg-white px-2 py-0.5 text-xs text-slate-800 border border-amber-400 outline-none shadow-xs"
             />
           ) : (
             <button
               onClick={() => setIsEditingNick(true)}
-              className="flex items-center gap-1 text-neutral-400 hover:text-amber-300 transition-colors cursor-pointer"
+              className="flex items-center gap-1 text-slate-600 hover:text-amber-600 transition-colors cursor-pointer"
               title="Ubah Nama Panggilan"
             >
-              <User className="h-3 w-3 text-neutral-500" />
-              <span className="max-w-[100px] truncate font-medium">{nickname}</span>
-              <span className="text-[10px] text-neutral-500">(edit)</span>
+              <User className="h-3 w-3 text-slate-400" />
+              <span className="max-w-[100px] truncate font-semibold text-slate-700">{nickname}</span>
+              <span className="text-[10px] text-slate-400">(edit)</span>
             </button>
           )}
         </div>
       </div>
 
       {/* Messages list */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-3">
+      <div className="flex-1 overflow-y-auto p-4 space-y-3 bg-white">
         {messages.map((msg) => {
           if (msg.isSystem) {
             return (
               <div
                 key={msg.id}
-                className="rounded-lg bg-neutral-950/80 border border-neutral-800/80 p-2.5 text-xs text-neutral-300 flex items-start gap-2"
+                className="rounded-xl bg-slate-50 border border-slate-200 p-2.5 text-xs text-slate-700 flex items-start gap-2 shadow-2xs"
               >
-                <Radio className="h-3.5 w-3.5 text-amber-400 shrink-0 mt-0.5" />
+                <Radio className="h-3.5 w-3.5 text-amber-500 shrink-0 mt-0.5" />
                 <div className="flex-1">
                   <div className="flex items-center justify-between">
-                    <span className="font-semibold text-amber-400">{msg.sender}</span>
-                    <span className="text-[10px] font-mono text-neutral-500">{msg.timestamp}</span>
+                    <span className="font-bold text-amber-700">{msg.sender}</span>
+                    <span className="text-[10px] font-mono text-slate-400">{msg.timestamp}</span>
                   </div>
-                  <p className="mt-0.5 text-neutral-300">{msg.text}</p>
+                  <p className="mt-0.5 text-slate-600">{msg.text}</p>
                 </div>
               </div>
             );
@@ -138,21 +138,21 @@ export const LiveChat: React.FC<LiveChatProps> = ({ onRequestClick }) => {
             return (
               <div
                 key={msg.id}
-                className="rounded-xl bg-gradient-to-r from-amber-500/10 via-neutral-900 to-neutral-900 border border-amber-500/30 p-2.5 text-xs"
+                className="rounded-xl bg-amber-50/70 border border-amber-200 p-2.5 text-xs shadow-2xs"
               >
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-1.5">
-                    <div className="h-2 w-2 rounded-full bg-amber-400" />
-                    <span className="font-semibold text-neutral-200">{msg.sender}</span>
-                    <span className="text-[10px] text-amber-400/90 font-medium bg-amber-400/10 px-1 rounded">
+                    <div className="h-2 w-2 rounded-full bg-amber-500" />
+                    <span className="font-bold text-slate-900">{msg.sender}</span>
+                    <span className="text-[10px] text-amber-800 font-bold bg-amber-100 px-1 rounded">
                       Request Lagu
                     </span>
                   </div>
-                  <span className="text-[10px] font-mono text-neutral-500">{msg.timestamp}</span>
+                  <span className="text-[10px] font-mono text-slate-400">{msg.timestamp}</span>
                 </div>
-                <p className="mt-1 text-neutral-300 text-xs pl-3.5 border-l border-amber-500/40">{msg.text}</p>
+                <p className="mt-1 text-slate-700 text-xs pl-3.5 border-l-2 border-amber-400">{msg.text}</p>
                 {msg.requestDetails && (
-                  <div className="mt-1.5 ml-3.5 flex items-center gap-1 text-[11px] font-semibold text-amber-300">
+                  <div className="mt-1.5 ml-3.5 flex items-center gap-1 text-[11px] font-bold text-amber-700">
                     <Music className="h-3 w-3" />
                     <span>{msg.requestDetails.artist} - {msg.requestDetails.title}</span>
                   </div>
@@ -166,15 +166,15 @@ export const LiveChat: React.FC<LiveChatProps> = ({ onRequestClick }) => {
               <div className="flex items-center justify-between gap-2">
                 <div className="flex items-center gap-1.5">
                   <div
-                    className={`h-4 w-4 rounded-full ${msg.avatarColor || 'bg-amber-500'} flex items-center justify-center text-[9px] font-bold text-neutral-950 uppercase`}
+                    className={`h-4.5 w-4.5 rounded-full ${msg.avatarColor || 'bg-amber-500'} flex items-center justify-center text-[9px] font-black text-white uppercase shadow-2xs`}
                   >
                     {msg.sender.charAt(0)}
                   </div>
-                  <span className="font-semibold text-neutral-300">{msg.sender}</span>
+                  <span className="font-bold text-slate-800">{msg.sender}</span>
                 </div>
-                <span className="text-[10px] font-mono tabular-nums text-neutral-500">{msg.timestamp}</span>
+                <span className="text-[10px] font-mono tabular-nums text-slate-400">{msg.timestamp}</span>
               </div>
-              <p className="mt-1 pl-5.5 text-neutral-300 break-words">{msg.text}</p>
+              <p className="mt-1 pl-6 text-slate-700 break-words">{msg.text}</p>
             </div>
           );
         })}
@@ -182,13 +182,13 @@ export const LiveChat: React.FC<LiveChatProps> = ({ onRequestClick }) => {
       </div>
 
       {/* Quick emoji and request shortcuts */}
-      <div className="border-t border-neutral-800/80 bg-neutral-950/40 px-3 py-1.5 flex items-center justify-between">
+      <div className="border-t border-slate-200 bg-slate-50/90 px-3 py-1.5 flex items-center justify-between">
         <div className="flex items-center gap-1 text-xs">
           {['📻', '❤️', '🔥', '🎵', '👍', '☕'].map((emoji) => (
             <button
               key={emoji}
               onClick={() => addEmoji(emoji)}
-              className="p-1 rounded hover:bg-neutral-800 transition-colors cursor-pointer text-xs"
+              className="p-1 rounded hover:bg-slate-200/80 transition-colors cursor-pointer text-xs"
             >
               {emoji}
             </button>
@@ -196,7 +196,7 @@ export const LiveChat: React.FC<LiveChatProps> = ({ onRequestClick }) => {
         </div>
         <button
           onClick={onRequestClick}
-          className="flex items-center gap-1 text-[11px] font-semibold text-amber-400 hover:text-amber-300 cursor-pointer"
+          className="flex items-center gap-1 text-[11px] font-bold text-amber-600 hover:text-amber-700 cursor-pointer"
         >
           <Music className="h-3 w-3" />
           <span>Kirim Request</span>
@@ -204,18 +204,18 @@ export const LiveChat: React.FC<LiveChatProps> = ({ onRequestClick }) => {
       </div>
 
       {/* Input chat form */}
-      <form onSubmit={handleSendMessage} className="border-t border-neutral-800 p-2.5 bg-neutral-950/80 flex items-center gap-2">
+      <form onSubmit={handleSendMessage} className="border-t border-slate-200 p-2.5 bg-white flex items-center gap-2">
         <input
           type="text"
           value={inputText}
           onChange={(e) => setInputText(e.target.value)}
-          placeholder={`Tulis pesan atau kirim salam sebagai ${nickname}...`}
-          className="flex-1 rounded-xl bg-neutral-800/80 border border-neutral-700/60 px-3 py-2 text-xs text-white placeholder-neutral-500 focus:border-amber-500 focus:outline-none transition-colors"
+          placeholder={`Tulis pesan atau salam sebagai ${nickname}...`}
+          className="flex-1 rounded-xl bg-slate-50 border border-slate-200 px-3 py-2 text-xs text-slate-800 placeholder-slate-400 focus:border-amber-500 focus:bg-white focus:outline-none transition-all shadow-2xs"
         />
         <button
           type="submit"
           disabled={!inputText.trim() || isSending}
-          className="flex h-8 w-8 items-center justify-center rounded-xl bg-amber-500 text-neutral-950 font-bold transition-transform hover:scale-105 active:scale-95 disabled:opacity-50 cursor-pointer shrink-0"
+          className="flex h-8 w-8 items-center justify-center rounded-xl bg-gradient-to-tr from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white font-bold transition-transform hover:scale-105 active:scale-95 disabled:opacity-50 cursor-pointer shrink-0 shadow-sm shadow-amber-500/25"
           aria-label="Kirim Pesan"
         >
           <Send className="h-3.5 w-3.5 fill-current" />

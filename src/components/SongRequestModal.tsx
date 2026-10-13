@@ -125,27 +125,27 @@ export const SongRequestModal: React.FC<SongRequestModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-neutral-950/80 backdrop-blur-md">
-      <div className="relative w-full max-w-lg overflow-hidden rounded-3xl border border-neutral-800 bg-neutral-900 p-6 shadow-2xl">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
+      <div className="relative w-full max-w-lg overflow-hidden rounded-3xl border border-slate-200 bg-white p-6 shadow-2xl">
         {/* Close button */}
         <button
           onClick={onClose}
-          className="absolute right-4 top-4 rounded-xl p-1.5 text-neutral-400 hover:text-white hover:bg-neutral-800 transition-colors cursor-pointer"
+          className="absolute right-4 top-4 rounded-xl p-1.5 text-slate-400 hover:text-slate-800 hover:bg-slate-100 transition-colors cursor-pointer"
           aria-label="Tutup modal"
         >
           <X className="h-5 w-5" />
         </button>
 
         {/* Modal Header */}
-        <div className="flex items-center gap-3 border-b border-neutral-800 pb-4">
-          <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-amber-500/15 border border-amber-500/30 text-amber-400">
+        <div className="flex items-center gap-3 border-b border-slate-200 pb-4">
+          <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-amber-50 border border-amber-200 text-amber-600 shadow-2xs">
             <Music className="h-5 w-5" />
           </div>
           <div>
-            <h2 className="text-base font-bold text-white">
+            <h2 className="text-base font-bold text-slate-900">
               Request Lagu ke Studio Radio
             </h2>
-            <p className="text-xs text-neutral-400">
+            <p className="text-xs text-slate-500">
               Lagu akan diteruskan ke antrean siaran &amp; operator RadioBOSS
             </p>
           </div>
@@ -154,7 +154,7 @@ export const SongRequestModal: React.FC<SongRequestModalProps> = ({
         {/* Form */}
         <form onSubmit={handleSubmit} className="mt-5 space-y-4 text-xs">
           <div>
-            <label className="block font-medium text-neutral-300 mb-1">
+            <label className="block font-semibold text-slate-700 mb-1">
               Nama Pendengar / Asal Kota
             </label>
             <input
@@ -162,14 +162,14 @@ export const SongRequestModal: React.FC<SongRequestModalProps> = ({
               value={requesterName}
               onChange={(e) => setRequesterName(e.target.value)}
               placeholder="Contoh: Ibu Maria (Jakarta)"
-              className="w-full rounded-2xl bg-neutral-950 border border-neutral-800 px-3.5 py-2.5 text-white placeholder-neutral-600 focus:border-amber-500 focus:outline-none"
+              className="w-full rounded-2xl bg-slate-50 border border-slate-200 px-3.5 py-2.5 text-slate-900 placeholder-slate-400 focus:bg-white focus:border-amber-500 focus:outline-none transition-all shadow-2xs"
             />
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <label className="block font-medium text-neutral-300 mb-1">
-                Penyanyi / Artis <span className="text-amber-400">*</span>
+              <label className="block font-semibold text-slate-700 mb-1">
+                Penyanyi / Artis <span className="text-amber-500">*</span>
               </label>
               <input
                 type="text"
@@ -177,13 +177,13 @@ export const SongRequestModal: React.FC<SongRequestModalProps> = ({
                 onChange={(e) => setArtist(e.target.value)}
                 placeholder="Contoh: NDC Worship"
                 required
-                className="w-full rounded-2xl bg-neutral-950 border border-neutral-800 px-3.5 py-2.5 text-white placeholder-neutral-600 focus:border-amber-500 focus:outline-none"
+                className="w-full rounded-2xl bg-slate-50 border border-slate-200 px-3.5 py-2.5 text-slate-900 placeholder-slate-400 focus:bg-white focus:border-amber-500 focus:outline-none transition-all shadow-2xs"
               />
             </div>
 
             <div>
-              <label className="block font-medium text-neutral-300 mb-1">
-                Judul Lagu <span className="text-amber-400">*</span>
+              <label className="block font-semibold text-slate-700 mb-1">
+                Judul Lagu <span className="text-amber-500">*</span>
               </label>
               <input
                 type="text"
@@ -191,13 +191,13 @@ export const SongRequestModal: React.FC<SongRequestModalProps> = ({
                 onChange={(e) => setTitle(e.target.value)}
                 placeholder="Contoh: Waktu Tuhan"
                 required
-                className="w-full rounded-2xl bg-neutral-950 border border-neutral-800 px-3.5 py-2.5 text-white placeholder-neutral-600 focus:border-amber-500 focus:outline-none"
+                className="w-full rounded-2xl bg-slate-50 border border-slate-200 px-3.5 py-2.5 text-slate-900 placeholder-slate-400 focus:bg-white focus:border-amber-500 focus:outline-none transition-all shadow-2xs"
               />
             </div>
           </div>
 
           <div>
-            <label className="block font-medium text-neutral-300 mb-1">
+            <label className="block font-semibold text-slate-700 mb-1">
               Salam &amp; Ucapan / Doa Sahabat (Opsional)
             </label>
             <textarea
@@ -205,13 +205,13 @@ export const SongRequestModal: React.FC<SongRequestModalProps> = ({
               value={message}
               onChange={(e) => setMessage(e.target.value)}
               placeholder="Contoh: Titip salam dan doa buat keluarga serta persekutuan doa..."
-              className="w-full rounded-2xl bg-neutral-950 border border-neutral-800 px-3.5 py-2.5 text-white placeholder-neutral-600 focus:border-amber-500 focus:outline-none resize-none"
+              className="w-full rounded-2xl bg-slate-50 border border-slate-200 px-3.5 py-2.5 text-slate-900 placeholder-slate-400 focus:bg-white focus:border-amber-500 focus:outline-none transition-all resize-none shadow-2xs"
             />
           </div>
 
           {/* Popular suggestions */}
           <div>
-            <span className="text-[11px] font-medium text-neutral-400 block mb-1.5">
+            <span className="text-[11px] font-semibold text-slate-500 block mb-1.5">
               Pilihan Cepat Populer:
             </span>
             <div className="flex flex-wrap gap-1.5">
@@ -220,7 +220,7 @@ export const SongRequestModal: React.FC<SongRequestModalProps> = ({
                   key={idx}
                   type="button"
                   onClick={() => handlePickSuggestion(sug.artist, sug.title)}
-                  className="rounded-xl bg-neutral-950 hover:bg-neutral-800 border border-neutral-800 px-2.5 py-1 text-[11px] text-neutral-300 hover:text-amber-400 transition-colors cursor-pointer"
+                  className="rounded-xl bg-slate-100 hover:bg-amber-50 hover:text-amber-700 border border-slate-200 px-2.5 py-1 text-[11px] font-medium text-slate-700 transition-colors cursor-pointer"
                 >
                   {sug.artist} - {sug.title}
                 </button>
@@ -232,34 +232,36 @@ export const SongRequestModal: React.FC<SongRequestModalProps> = ({
             <div
               className={`rounded-2xl border p-3 text-xs flex items-center gap-2 ${
                 statusMessage.type === 'success'
-                  ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-300'
-                  : 'bg-rose-500/10 border-rose-500/30 text-rose-300'
+                  ? 'bg-emerald-50 border-emerald-200 text-emerald-800'
+                  : 'bg-rose-50 border-rose-200 text-rose-800'
               }`}
             >
               {statusMessage.type === 'success' ? (
-                <CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-400" />
+                <CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-600" />
               ) : (
-                <AlertCircle className="h-4 w-4 shrink-0 text-rose-400" />
+                <AlertCircle className="h-4 w-4 shrink-0 text-rose-600" />
               )}
-              <span>{statusMessage.text}</span>
+              <span className="font-medium">{statusMessage.text}</span>
             </div>
           )}
 
           <div className="pt-2 flex flex-col sm:flex-row items-stretch sm:items-center justify-end gap-2.5">
+            {/* WhatsApp Button - Emerald Accent */}
             <button
               type="button"
               onClick={handleSendToWhatsApp}
-              className="flex items-center justify-center gap-1.5 rounded-2xl bg-emerald-600 hover:bg-emerald-500 px-4 py-2.5 text-xs font-bold text-white transition-colors cursor-pointer shadow-md shadow-emerald-600/20"
+              className="flex items-center justify-center gap-1.5 rounded-2xl bg-emerald-600 hover:bg-emerald-700 px-4 py-2.5 text-xs font-bold text-white transition-all cursor-pointer shadow-md shadow-emerald-600/25 active:scale-95"
               title="Kirimkan langsung ke WhatsApp Operator"
             >
               <MessageCircle className="h-4 w-4" />
               <span>Kirim via WhatsApp ke Operator</span>
             </button>
 
+            {/* Submit Button - Amber Accent */}
             <button
               type="submit"
               disabled={isSubmitting}
-              className="flex items-center justify-center gap-2 rounded-2xl bg-amber-500 hover:bg-amber-400 px-5 py-2.5 text-xs font-bold text-neutral-950 transition-colors cursor-pointer shadow-md shadow-amber-500/20 disabled:opacity-50"
+              className="flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 px-5 py-2.5 text-xs font-bold text-white transition-all cursor-pointer shadow-md shadow-amber-500/25 disabled:opacity-50 active:scale-95"
             >
               <Send className="h-3.5 w-3.5 fill-current" />
               <span>{isSubmitting ? 'Mengirim...' : 'Kirim ke Antrean'}</span>

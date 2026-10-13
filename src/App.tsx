@@ -81,7 +81,7 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-neutral-950 text-neutral-100 flex flex-col font-sans selection:bg-amber-500/20 selection:text-amber-300 w-full max-w-full overflow-x-hidden relative">
+    <div className="min-h-screen bg-[#f8fafc] text-slate-800 flex flex-col font-sans selection:bg-amber-100 selection:text-amber-900 w-full max-w-full overflow-x-hidden relative">
       {/* Clean Top Navigation Bar with Admin Button */}
       <TopNavbar
         activeTab={activeTab}
@@ -93,7 +93,7 @@ export default function App() {
       />
 
       {/* Main Content Area - with mobile bottom nav safe padding (pb-24) */}
-      <main className="mx-auto w-full max-w-7xl flex-1 px-3 sm:px-6 py-3 sm:py-6 pb-24 md:pb-8">
+      <main className="mx-auto w-full max-w-7xl flex-1 px-3 sm:px-6 py-4 sm:py-6 pb-24 md:pb-8">
         {/* TAB 1: PLAYER (STUDIO UTAMA & PEMUTAR) */}
         {activeTab === 'player' && (
           <div className="space-y-5">
@@ -111,20 +111,22 @@ export default function App() {
                   {/* Current Program Card */}
                   <div
                     onClick={() => setActiveTab('schedule')}
-                    className="group rounded-2xl border border-neutral-800/80 bg-neutral-900/60 p-3.5 hover:border-neutral-700 transition-all cursor-pointer select-none"
+                    className="group rounded-2xl border border-slate-200/90 bg-white p-3.5 shadow-xs hover:shadow-md hover:border-amber-300 transition-all cursor-pointer select-none"
                   >
-                    <div className="flex items-center justify-between text-xs text-neutral-400">
-                      <span className="font-semibold text-neutral-300 flex items-center gap-1.5">
-                        <Calendar className="h-3.5 w-3.5 text-amber-400 shrink-0" />
+                    <div className="flex items-center justify-between text-xs">
+                      <span className="font-semibold text-slate-700 flex items-center gap-1.5">
+                        <span className="flex h-6 w-6 items-center justify-center rounded-lg bg-amber-50 text-amber-600 border border-amber-200/60 shrink-0">
+                          <Calendar className="h-3.5 w-3.5" />
+                        </span>
                         <span>Acara Siaran</span>
                       </span>
-                      <span className="text-amber-400 font-mono text-[11px] group-hover:underline">Jadwal →</span>
+                      <span className="text-amber-600 font-semibold text-[11px] group-hover:underline">Jadwal →</span>
                     </div>
-                    <div className="mt-1.5">
-                      <h3 className="text-sm font-bold text-white truncate">
+                    <div className="mt-2 pl-0.5">
+                      <h3 className="text-sm font-bold text-slate-900 truncate">
                         {status?.currentShow?.name || 'Renungan Pagi & Pujian Jiwa'}
                       </h3>
-                      <p className="text-xs text-neutral-400 truncate mt-0.5">
+                      <p className="text-xs text-slate-500 truncate mt-0.5">
                         Host: {status?.currentShow?.host || 'Penyiar Studio'}
                       </p>
                     </div>
@@ -133,42 +135,46 @@ export default function App() {
                   {/* Song History Preview Card */}
                   <div
                     onClick={() => setActiveTab('history')}
-                    className="group rounded-2xl border border-neutral-800/80 bg-neutral-900/60 p-3.5 hover:border-neutral-700 transition-all cursor-pointer select-none"
+                    className="group rounded-2xl border border-slate-200/90 bg-white p-3.5 shadow-xs hover:shadow-md hover:border-indigo-300 transition-all cursor-pointer select-none"
                   >
-                    <div className="flex items-center justify-between text-xs text-neutral-400">
-                      <span className="font-semibold text-neutral-300 flex items-center gap-1.5">
-                        <Music className="h-3.5 w-3.5 text-amber-400 shrink-0" />
+                    <div className="flex items-center justify-between text-xs">
+                      <span className="font-semibold text-slate-700 flex items-center gap-1.5">
+                        <span className="flex h-6 w-6 items-center justify-center rounded-lg bg-indigo-50 text-indigo-600 border border-indigo-200/60 shrink-0">
+                          <Music className="h-3.5 w-3.5" />
+                        </span>
                         <span>Daftar Lagu</span>
                       </span>
-                      <span className="text-amber-400 font-mono text-[11px] group-hover:underline">Riwayat →</span>
+                      <span className="text-indigo-600 font-semibold text-[11px] group-hover:underline">Riwayat →</span>
                     </div>
-                    <div className="mt-1.5">
-                      <h3 className="text-sm font-bold text-white truncate">
+                    <div className="mt-2 pl-0.5">
+                      <h3 className="text-sm font-bold text-slate-900 truncate">
                         Rotasi & Antrean Request
                       </h3>
-                      <p className="text-xs text-neutral-400 truncate mt-0.5">
+                      <p className="text-xs text-slate-500 truncate mt-0.5">
                         Lagu rohani yang baru saja diputar
                       </p>
                     </div>
                   </div>
 
                   {/* Radio Server Status Card */}
-                  <div className="rounded-2xl border border-neutral-800/80 bg-neutral-900/60 p-3.5 select-none">
-                    <div className="flex items-center justify-between text-xs text-neutral-400">
-                      <span className="font-semibold text-neutral-300 flex items-center gap-1.5">
-                        <RadioTower className="h-3.5 w-3.5 text-emerald-400 shrink-0" />
+                  <div className="rounded-2xl border border-slate-200/90 bg-white p-3.5 shadow-xs select-none">
+                    <div className="flex items-center justify-between text-xs">
+                      <span className="font-semibold text-slate-700 flex items-center gap-1.5">
+                        <span className="flex h-6 w-6 items-center justify-center rounded-lg bg-emerald-50 text-emerald-600 border border-emerald-200/60 shrink-0">
+                          <RadioTower className="h-3.5 w-3.5" />
+                        </span>
                         <span>Status Server</span>
                       </span>
-                      <span className="text-emerald-400 font-mono text-[11px]">Terhubung</span>
+                      <span className="text-emerald-700 font-semibold text-[11px] bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-200/80">Terhubung</span>
                     </div>
-                    <div className="mt-1.5">
+                    <div className="mt-2 pl-0.5">
                       <div className="flex items-center gap-1.5">
-                        <span className="h-2 w-2 rounded-full bg-emerald-400 shrink-0 animate-pulse" />
-                        <h3 className="text-sm font-bold text-white truncate">
+                        <span className="h-2 w-2 rounded-full bg-emerald-500 shrink-0 animate-pulse" />
+                        <h3 className="text-sm font-bold text-slate-900 truncate">
                           RadioBOSS &amp; Zeno FM
                         </h3>
                       </div>
-                      <p className="text-xs text-neutral-400 truncate mt-0.5">
+                      <p className="text-xs text-slate-500 truncate mt-0.5">
                         Streaming online aktif 24 jam
                       </p>
                     </div>
@@ -247,29 +253,32 @@ export default function App() {
         onLogout={handleAdminLogout}
       />
 
-      {/* Clean Desktop Footer */}
-      <footer className="hidden md:block mt-auto border-t border-neutral-800 bg-neutral-950 py-5 text-xs text-neutral-500">
+      {/* Clean Light Desktop Footer */}
+      <footer className="hidden md:block mt-auto border-t border-slate-200/90 bg-white py-4 text-xs text-slate-500 shadow-[0_-1px_3px_rgba(0,0,0,0.02)]">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 flex flex-col sm:flex-row items-center justify-between gap-3">
           <div className="flex items-center gap-2">
             <Radio className="h-4 w-4 text-amber-500 shrink-0" />
-            <span className="font-semibold text-neutral-300">{status?.stationName || 'Eklesia Radio'}</span>
-            <span>·</span>
+            <span className="font-bold text-slate-800">{status?.stationName || 'Eklesia Radio'}</span>
+            <span className="text-slate-300">·</span>
             <span>Streaming Online &amp; Otomatisasi RadioBOSS</span>
           </div>
 
-          <div className="flex items-center gap-4 text-neutral-400">
+          <div className="flex items-center gap-3.5 text-slate-500">
             <button
               onClick={handleAdminClick}
-              className="text-neutral-400 hover:text-amber-400 transition-colors cursor-pointer flex items-center gap-1"
+              className="font-medium text-slate-600 hover:text-indigo-600 transition-colors cursor-pointer flex items-center gap-1.5 px-2 py-1 rounded-lg hover:bg-slate-100"
             >
-              <ShieldCheck className="h-3.5 w-3.5" />
+              <ShieldCheck className="h-3.5 w-3.5 text-indigo-600" />
               <span>{adminUser ? 'Panel Admin (Aktif)' : 'Portal Masuk Admin'}</span>
             </button>
-            <span>·</span>
+            <span className="text-slate-300">·</span>
             <span>Audio Latensi Rendah</span>
-            <span>·</span>
-            <span>Radio Server Connected</span>
-            <span>·</span>
+            <span className="text-slate-300">·</span>
+            <span className="flex items-center gap-1">
+              <span className="h-1.5 w-1.5 rounded-full bg-emerald-500"></span>
+              <span>Server Connected</span>
+            </span>
+            <span className="text-slate-300">·</span>
             <span>24 Jam Non-Stop</span>
           </div>
         </div>
